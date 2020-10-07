@@ -1,0 +1,105 @@
+
+# ////// Entry point of our layout structure
+<MainWindow>:
+    orientation: "vertical"
+    # /////// Handles Heading
+    BoxLayout:
+        size_hint_y: 0.071
+        padding: [self.width/14,0]
+
+        # ////// Button to show our Heading , but doesn't react on clicking
+        MDRoundFlatButton:
+
+            size_hint_x: 1
+            pos_hint: {'center_x': 0.5,'center_y':0.5}
+
+            md_bg_color: 0,0,0,0
+            text: "\t\tMatrix   Calculator\t\t"
+            text_color: 0,0,0,0.85
+            font_size: 18
+            font_name: './ERASDEMI.ttf'
+
+    MDSeparator:
+        height: dp(3)
+        color: 0,0,0,0.2
+
+    # ////// Handles the "order" of Matrix
+    BoxLayout:
+
+        size_hint_y: 0.107
+        padding: [self.width/10,0]
+        spacing: self.width/14
+
+        # ////// Instruct user to enter order
+        Label:
+            valign: 'center'
+            halign: 'left'
+            size_hint_x: 0.6
+
+            text_size: self.size
+            font_size: sp(18)
+            font_name: './ERASMD.ttf'
+            text: "Enter order of Matrix :"
+            color: 0,0,0,1
+
+        # ////// Accepts matrix order from user
+        MDTextFieldRound:
+            id: order_input
+            on_text_validate: root.ids.input_matrix.order=self.text
+            input_type: 'number'
+            multiline: 'false'
+
+
+            size_hint_x: 0.25
+            pos_hint: {'center_x':0.5,'center_y':0.5}
+            padding: 100
+
+            icon_type: 'without'
+            normal_color: [0,0,0,0.2]
+            foreground_color: [0,0,0,1]
+            font_size: sp(9)
+            font_family: 'bold'
+
+    MDSeparator:
+
+    # ////// Block to place complete matrix in it
+    # ////// Defined completely in python file for advanced functionality
+    MatrixGrid:
+        id: input_matrix
+        padding: [dp(30),dp(25)]
+        pos_hint: {'center_x':0.5}
+        size_hint: (1,0.615)
+        size: self.width,self.width
+        spacing: dp(5)
+
+    # ////// Handles answer related uses
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: 0.107
+        spacing: root.width/14
+
+        # ////// Button to initiate the calculation of provided matrix
+        MDRaisedButton:
+            on_press: app.get_matrix()
+
+            text: 'Calculate >>'
+            font_name: './Azonix.ttf'
+            font_size: sp(8)
+            text_color: 1,1,1,1
+
+            elevation_normal: 5
+            opposite_colors: True
+            md_bg_color: 1, 0.38, 0.38, 1
+
+            size_hint_x: 0.7
+            pos_hint: {'center_x': 0.5,'center_y':0.5}
+
+        # ////// This is the place to show the calculated answer
+        Label:
+            id: show_answer
+            size_hint_x: 0.3
+
+            text: '----'
+            font_name: './Segment7Standard.ttf'
+            font_size: sp(30)
+            color: 0,0,0,1
