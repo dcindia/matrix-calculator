@@ -10,6 +10,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
 from kivy.config import Config
+from fractions import Fraction
 
 Config.write()
 kivy.resources.resource_add_path("./")
@@ -63,7 +64,7 @@ class matrixCalculator(MDApp):
     def matrix_builder(self, values_list):
         Mvalues_list = []
         temp_list = []
-        order = int(math.sqrt(len(values_list)))
+        order = int(self.root.ids.order_input.text)
 
         for i in range(order):
             for k in range(order):
@@ -74,19 +75,20 @@ class matrixCalculator(MDApp):
         return Mvalues_list
 
     ### Receive values of matrix units provided in grid layout   
-    def get_matrix(self):
+    def calculate(self):
 
-        ### Get List of values from matrix_input
+        # ////// Get user-entered Matrix in List Form
+        # ////// Also converts String input to Fraction object
         children_list = self.root.ids.input_matrix.children
         values_list = []
         for child in children_list:
-            values_list.append(int(child.text))
+            values_list.append(Fraction(child.text).limit_denominator(999))
 
-        ### passing values to convert in matrix form
+        # ////// Covert Linear List to Matrix-type Nested List
         values_list.reverse()
         matrix_list = self.matrix_builder(values_list)
 
-        ### get determinant value from value dedicated class
+        # ////// Passes the matrix to calculate Determinant
         determinant = Determinant()
         answer = Determinant.determinantOfMatrix(matrix_list)
 
