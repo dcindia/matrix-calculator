@@ -62,13 +62,22 @@
 
     MDSeparator:
 
+    Label:
+
+        id: error_box
+        color: 1,0,0,1
+        text_size: self.width, None
+        size_hint: (1,None)
+        halign: 'center'
+        height: self.texture_size[1]
+
     # ////// Block to place complete matrix in it
     # ////// Defined completely in python file for advanced functionality
     MatrixGrid:
         id: input_matrix
         padding: [dp(30),dp(25)]
         pos_hint: {'center_x':0.5}
-        size_hint: (1,0.615)
+        size_hint: (1,0.595)
         size: self.width,self.width
         spacing: dp(5)
 
