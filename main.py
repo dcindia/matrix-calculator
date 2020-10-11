@@ -9,11 +9,16 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivymd.app import MDApp
 from kivy.config import Config
+from kivy.core.window import Window
 import re
 from fractions import Fraction
 
+# // Search for resources in project root file (optional)
 Config.write()
 kivy.resources.resource_add_path("./")
+
+# // Added to fix text-box hidden behind keyboard
+Window.softinput_mode = 'below_target'
 
 
 class MatrixValue(TextInput):
