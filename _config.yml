@@ -1,5 +1,54 @@
-title: Matrix Calculator
-theme: jekyll-theme-merlot
-markdown: CommonMarkGhPages
-description: This is a python based Android application used to simply calculate Determinant of provided Matrix.
+#################
 
+lang: "en_US"
+title: "Matrix Calculator"
+logo: "icon.png"
+description: ""
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "https://github.com/dcindia/matrix-calculator" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+remote_theme: "manid2/lone-wolf-theme"
+bootswatch_theme : "united" # cerulean, spacelab, united
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jemoji
+  - jekyll-include-cache
+
+# mimic GitHub Pages with --safe
+whitelist:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jemoji
+  - jekyll-include-cache
+
+# HTML Compression
+# - http://jch.penibelst.de/
+
+# Exclude from processing.
+# The following items will not be processed, by default.
+# Any item listed under the `exclude:` key here will be automatically added to
+# the internal "default list".
+#
+# Excluded items can be processed by explicitly listing the directories or
+# their entries' file path in the `include:` list.
+#
+# exclude:
+#   - .sass-cache/
+#   - .jekyll-cache/
+#   - gemfiles/
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules/
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/

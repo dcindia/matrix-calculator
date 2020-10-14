@@ -1,0 +1,30 @@
+{% assign owner = site.data.nav.footer[0] %}
+{% assign social = site.data.nav.footer[1] %}
+{% assign feed = site.data.nav.footer[2] %}
+
+<footer class="page-footer">
+    <div class="page-footer-owner">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 pb-3 text-center">
+                    <!-- owner info -->
+		    <p class="m-0 font-italic">{{ owner.bio }}</p>
+                    <p class="m-0">
+                        Owned by
+                        {% if owner.url %}
+                        <a href="{{ owner.url }}" {% if owner.description %} title="{{ owner.description }}"
+                            {% endif %}>{{ owner.owner }}</a>
+                        {% else %}
+                            <strong>{{ owner.owner }}</strong>
+                        {% endif %}
+                    </p>
+                    
+                    
+                    
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+</footer>

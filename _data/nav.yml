@@ -1,0 +1,18 @@
+footer:
+  - owner: "DC India"
+    url: "https://dcindia.github.io"
+    description: "Dynamic Challengers"
+    bio: "Hobby project by Dynamic Challengers"
+    address: "India"
+  - social:
+    - label: "Github"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/dcindia"
+    - label: "Youtube"
+      icon: "fab fa-youtube"
+      url: "https://www.youtube.com/channel/UCtcajOzkCqxn_y2Ljtr0TGg"
+  - feed:
+    - label: "Sitemap"
+      icon: "fas fa-sitemap"
+      url: "/sitemap.xml"
+   
