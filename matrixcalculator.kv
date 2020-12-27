@@ -1,113 +1,182 @@
+#: import utils kivy.utils
+#: import RectangularElevationBehavior kivymd.uix.behaviors
+
+<ToggleButton>:
+    background_normal: './data/0099ff.png'
+    background_down : './data/00ff51.png'
+
+    font_size: sp(17)
+    font_name: 'Roboto-Medium.ttf'
+
+
+
 
 # ////// Entry point of our layout structure
 <MainWindow>:
     orientation: "vertical"
-    # /////// Handles Heading
-    BoxLayout:
-        size_hint_y: 0.071
-        padding: [self.width/14,0]
 
-        # ////// Button to show our Heading , but doesn't react on clicking
-        MDRoundFlatButton:
-
-            size_hint_x: 1
-            pos_hint: {'center_x': 0.5,'center_y':0.5}
-
-            md_bg_color: 0,0,0,0
-            text: "\t\tMatrix   Calculator\t\t"
-            text_color: 0,0,0,0.85
-            font_size: 18
-            font_name: './fonts/ERASDEMI.ttf'
-
-    MDSeparator:
-        height: dp(3)
-        color: 0,0,0,0.2
-
-    # ////// Handles the "order" of Matrix
-    BoxLayout:
-
-        size_hint_y: 0.107
-        padding: [self.width/10,0]
-        spacing: self.width/14
-
-        # ////// Instruct user to enter order
+    # // Area : Heading
+    AnchorLayout:
+        anchor_x: 'center'
+        size_hint_y: 0.1071
+        padding: (0,self.width*0.03)
         Label:
+            size_hint_x: 0.9394
+            canvas.before:
+                Color:
+                    rgb: utils.get_color_from_hex('#0C335C')
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [(27,27),(27,27),(27,27),(27,27)]
+
+            text: "Matrix Calculator      "
+            font_name: './fonts/Alata-Regular.ttf'
+            font_size: sp(23)
+
+            halign: 'right'
             valign: 'center'
-            halign: 'left'
-            size_hint_x: 0.6
-
             text_size: self.size
-            font_size: sp(18)
-            font_name: './fonts/ERASMD.ttf'
-            text: "Enter order of Matrix :"
-            color: 0,0,0,1
+            Image:
+                pos: (self.parent.x-self.parent.width/3,self.parent.y)
+                size: self.parent.size
+                source: './data/icon.png'
 
-        # ////// Accepts matrix order from user
-        MDTextFieldRound:
-            id: order_input
-            on_text_validate: root.ids.input_matrix.order=self.text
-            multiline: 'false'
-            focus: False
+    # // Area : Input
+    BoxLayout:
+        size_hint_y: 0.1642
+        padding: (self.width*0.0606,0)
 
-            size_hint_x: 0.25
-            pos_hint: {'center_x':0.5,'center_y':0.5}
-            padding: 100
+        MDCard:
+            orientation: "vertical"
+            size_hint: (0.8788,0.9)
+            md_bg_color: utils.get_color_from_hex('#DBE2E6')
+            border_radius: dp(16)
+            border_color_a: dp(0.2)
 
-            icon_type: 'without'
-            normal_color: [0,0,0,0.2]
-            foreground_color: [0,0,0,1]
-            font_size: sp(9)
-            font_family: 'bold'
+            # ////// Instruct user to enter order
+            Label:
+                valign: 'center'
+                halign: 'center'
+                text_size: self.size
+                font_size: sp(18)
+                font_name: './fonts/BalooBhai2-Regular.ttf'
+                text: "Enter order of Matrix :"
+                color: utils.get_color_from_hex('#4E5356')
 
-    MDSeparator:
+            BoxLayout:
+                orientation: "horizontal"
+                padding: (self.parent.width/9,dp(12))
+                spacing: self.parent.width/10
+                ToggleButton:
+                    text: '2'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
+                ToggleButton:
+                    text: '3'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
+                ToggleButton:
+                    text: '4'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
 
-    Label:
 
-        id: error_box
-        color: 1,0,0,1
-        text_size: self.width, None
-        size_hint: (1,None)
-        halign: 'center'
-        height: self.texture_size[1]
+    # // Area : Display
+    AnchorLayout:
+        anchor_x: 'center'
+        size_hint_y: 0.1714
+        MDCard:
+            size_hint: (0.8588,None)
+            padding: (10,0)
+            height: root.ids.display_box.height
+            opacity: 1 if root.ids.display_box.text else 0
+            #:set light_red utils.get_color_from_hex('#FF615C')
+            #:set light_green utils.get_color_from_hex('#A0FF5C')
+            md_bg_color: light_red if (root.ids.display_box.text).startswith('!') else light_green
+            Label:
+                id: display_box
+                height: self.texture_size[1] + dp(20)
+                markup: True
+                max_lines: 4
+                #:set tiranga_red utils.get_color_from_hex('#EB730A')
+                #:set tiranga_green utils.get_color_from_hex('#3C9532')
 
-    # ////// Block to place complete matrix in it
-    # ////// Defined completely in python file for advanced functionality
-    MatrixGrid:
-        id: input_matrix
-        padding: [dp(30),dp(25)]
-        pos_hint: {'center_x':0.5}
-        size_hint: (1,0.595)
-        size: self.width,self.width
-        spacing: dp(5)
+                #:set red utils.get_color_from_hex('#973126')
+                color: red if (root.ids.display_box.text).startswith('!') else tiranga_green
+                text: ''
+                font_name: './fonts/Commissioner-Medium.ttf'
+                text_size: self.width,None
+                valign: 'center'
 
-    # ////// Handles answer related uses
+
+    # // Area : Matrix
+    AnchorLayout:
+        anchor_y: 'center'
+        size_hint_y: 0.4071
+        padding: (self.width*0.0606,0)
+
+        MatrixGrid:
+            id: input_matrix
+            size_hint_y: None
+            height: self.minimum_height
+            padding: [dp(20+(10*(4-self.order)) ), dp(30+(10*(self.order-2)))]
+            spacing: dp(6.66*3**(4-self.order))
+            row_force_default: True
+            row_default_height: dp(50)
+
+            opacity: 0 if self.order == 0 else 1
+            canvas.before:
+                Color:
+                    rgb: utils.get_color_from_hex('#EBF7FF')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+    # // Area : Control
     BoxLayout:
         orientation: 'horizontal'
-        size_hint_y: 0.107
-        spacing: root.width/14
+        size_hint_y: 0.1500
+        padding: (self.width*0.0606,0.2)
+
+        # // Button to clear matrix_input
+        Button:
+            on_press: root.ids.input_matrix.order = 0
+            size_hint_x: 0.3
+            size_hint_y: 2/5
+            padding_x: dp(10)
+            pos_hint: {'center_y':0.5}
+            background_color: 0,0,0,0
+            text: '  Reset'
+            font_name: './fonts/BioRhyme-Bold.ttf'
+
+            canvas.before:
+                Color:
+                    rgb: tiranga_red
+                Quad:
+                    points: (self.parent.width*4.5/15,self.height+self.y,self.parent.width*5.5/15,self.y,self.x,self.y,self.x,self.height+self.y)
+
+            MDIcon:
+                icon: 'refresh'
+                size: self.parent.size
+                pos: (self.parent.x+self.parent.padding_x,self.parent.y)
+                color: 1,1,1,1
 
         # ////// Button to initiate the calculation of provided matrix
-        MDRaisedButton:
+        Button:
             on_press: app.calculate()
+            text: '   Calculate  >>'
+            font_name: './fonts/ChakraPetch-SemiBoldItalic.ttf'
+            font_size: sp(25)
 
-            text: 'Calculate >>'
-            font_name: './fonts/Azonix.ttf'
-            font_size: sp(8)
-            text_color: 1,1,1,1
+            size_hint_x: 0.6
+            size_hint_y: 2/5
 
-            elevation_normal: 5
-            opposite_colors: True
-            md_bg_color: 1, 0.38, 0.38, 1
-
-            size_hint_x: 0.7
             pos_hint: {'center_x': 0.5,'center_y':0.5}
+            background_color: 0,0,0,0
 
-        # ////// This is the place to show the calculated answer
-        Label:
-            id: show_answer
-            size_hint_x: 0.3
-
-            text: '----'
-            font_name: './fonts/Digital7Monoitalic.ttf'
-            font_size: sp(30)
-            color: 0,0,0,1
+            canvas.before:
+                Color:
+                    rgb: tiranga_green
+                Quad:
+                    points: (self.parent.width*5/15,self.height+self.y,self.parent.width*6/15,self.y,self.x+self.width,self.y,self.x+self.width,self.height+self.y)
