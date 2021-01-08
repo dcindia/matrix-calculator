@@ -1,43 +1,36 @@
 ## Introduction
-Do you remember your *Higher Secondary* **Mathematics** book. 💀  
-No problem. There is a concept of **Determinants** that are special calculations based on a *Matrix*.
-These calculations are very hard and prone to *Silly Mistakes*.  
-Here, I created this program to directly give *Desired Answer*. Life is much Better now.😉
+Matrices look beautiful as well as are highly useful for both Data Manipulation & Getting marks in exams.
+But performing those calculations can drill deep into your mind and are prone to silly mistakes.  
+To make such work easier, this project exists. :wink:
 
 ## Versions  
-[**⭐ See our all Releases Here \| Source Code \| Installer \| Release Notes ⭐**](https://github.com/dcindia/matrix-calculator/releases)  
+[**:star: See all Releases \| Source Code \| Installer \| Release Notes :star:**](https://github.com/dcindia/matrix-calculator/releases)  
 
-> ### For Desktop
-> *Version Code: 1.x* like *1.1* , *1.2* and so on. 
+### For Desktop [v1.x]
+>Source available at **desktop** branch of this project.  
+>Both EXE and DEB file available at [Releases Patform](https://github.com/dcindia/matrix-calculator/releases)
 
-> ### For Android
-> *Version Code: 2.x* like *2.1* , *2.2* etc. etc.
+### For Android [v2.x]
+> Source available at **mobile** branch of this project.  
+> Available at [Amazon App Store](https://www.amazon.com/gp/product/B08RCSVDWC/ref=mas_dl)
+>**OR**
+>Install APK file from [Release Platform](https://github.com/dcindia/matrix-calculator/releases).  
 
-## How to Use?
-> ### For Windows
->Use automatic  EXE Installer available at [Release Platform](https://github.com/dcindia/matrix-calculator/releases).  
->For manual installation, visit this [Guide](https://github.com/dcindia/matrix-calculator/wiki/Run-Manually-on-Windows)  
 
-> ### For Linux
->As you know because of *Dynamic* nature of Linux, it is difficult to prepare an universal Installer.
->However, you can complete the dependencies as described in [Windows](https://github.com/dcindia/matrix-calculator/wiki/Run-Manually-on-Windows).  
+## Roadmap
++ Currently, only calculation of *Determinant* has been implemeted. There is a need to insert more functions like following:
++ Add more single value functions such as Rank of Matrix, Minors, Co-factors, Adjoint etc.  
++ Add Multiple matrix functions like Addition, Subtraction, Inverse of matrix, Multiplication etc.
++ Add Matrix Transformation functions like Inverse of Matrix, Elementary Operations etc.
++ Show Human-Friendly steps followed to reach respective result.
++ **_Any Improvements or Added Features are heartly welcomed._**
 
-> ### For Android
->Install APK file from latest release available at [Release Platform](https://github.com/dcindia/matrix-calculator/releases).  
->If warning appears, Click **Install Anyway**  
->If asks to send file, Click **Don't Send**  
 
-## Troubleshooting
-As python is not officialy supported by Android, there can be devices where it not works. If you encounter such issues, please report in [**Issues**](https://github.com/dcindia/matrix-calculator/issues) Section.  
-If the problem occurs in Windows or Linux, check if the libraries are properly installed. Kivy and KivyMD were in development stage at the time of writing the program. It may happen that internal code changed, so you have to uninstall previously installed libraries and again install it according to my Guide.  
-For Any problem, feel free to raise an issue.
+**If you encounter any issues, please report in [**Issues**](https://github.com/dcindia/matrix-calculator/issues) Section.**
 
-**_Any Improvements or Added Features are heartly welcomed._**
+
 ## Thanks To
-  * kivy.org for Library
-  * kivymd for good UI components
-  * pycharm for best Editor
-  * buildozer for APK Builder
-  * python for Language
-  * *and other backdoor services*
+  + kivy.org for GUI Framework & Buildozer
+  + kivymd for good UI components
+  + *and other backdoor services*
 
