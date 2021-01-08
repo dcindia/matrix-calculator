@@ -34,3 +34,9 @@ To make such work easier, this project exists. :wink:
   + kivymd for good UI components
   + *and other backdoor services*
 
+<p align="center">
+  <img src="./assets/Samples/v2.2/trial_grid_3x3.jpg" width="200" alt="trial_grid_3x3">
+  <img src="./assets/Samples/v2.2/grid_4x4.jpg" width="200" alt="grid_4x4">
+  <img src="./assets/Samples/v2.2/grid_2x2.jpg" width="200" alt="grid_2x2">
+  <img src="./assets/Samples/v2.2/empty_frame.jpg" width="200" alt="empty_frame">
+</p>
