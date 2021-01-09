@@ -22,7 +22,7 @@ To make such work easier, this project exists. :wink:
 + Add more single value functions such as Rank of Matrix, Minors, Co-factors, Adjoint etc.  
 + Add Multiple matrix functions like Addition, Subtraction, Inverse of matrix, Multiplication etc.
 + Add Matrix Transformation functions like Inverse of Matrix, Elementary Operations etc.
-+ Show Human-Friendly steps followed to reach respective result.
++ Show Human-Friendly steps followed to reach respective result
 + **_Any Improvements or Added Features are heartly welcomed._**
 
 
@@ -32,11 +32,16 @@ To make such work easier, this project exists. :wink:
 ## Thanks To
   + kivy.org for GUI Framework & Buildozer
   + kivymd for good UI components
-  + *and other backdoor services*
+  + *and other backend tools*
 
-<p align="center">
-  <img src="./assets/Samples/v2.2/trial_grid_3x3.jpg" width="200" alt="trial_grid_3x3">
-  <img src="./assets/Samples/v2.2/grid_4x4.jpg" width="200" alt="grid_4x4">
-  <img src="./assets/Samples/v2.2/grid_2x2.jpg" width="200" alt="grid_2x2">
-  <img src="./assets/Samples/v2.2/empty_frame.jpg" width="200" alt="empty_frame">
-</p>
+<table>
+  <tr>
+    <td> <img src="./assets/Samples/v2.2/trial_grid_3x3.jpg" width="50%" alt="trial_grid_3x3"></td>
+    <td> <img src="./assets/Samples/v2.2/grid_4x4.jpg" width="50%" alt="grid_4x4"></td>
+ </tr>
+ 
+<tr>
+  <td> <img src="./assets/Samples/v2.2/grid_2x2.jpg" width="50%" alt="grid_2x2"></td>
+  <td> <img src="./assets/Samples/v2.2/empty_frame.jpg" width="50%" alt="empty_frame"></td>
+  </tr>
+  </table>
