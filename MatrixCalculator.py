@@ -1,222 +1,74 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[]:
-
-### All the import statements needed in current version or upcoming version
 import math
-import kivy
-from kivy.app import App
-from kivy.lang import Builder
+from fractions import Fraction
+import re
+import sys, os
+from kivy.resources import resource_add_path, resource_find
+from kivymd.app import MDApp
+from kivy.metrics import sp
+from kivy.properties import StringProperty
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.uix.anchorlayout import AnchorLayout
-from kivymd.theming import ThemeManager
-from kivymd.uix.textfield import MDTextFieldRound
-from kivy.uix.effectwidget import EffectWidget
-# In[]:
 
-### A Window to contain our app
-### Might not be required in Android OS upcoming Version
-Window.clearcolor = (1,1,1,1)
-Window.size = (600,400)
+Window.size = (650, 450)  # A Window to contain our app
 
 
-# In[ ]:
-
-### This is a kivy file
-### Instead of seperate file, it is provided inside the code
-### It contains all the rules and parameters to structure our layout
-Builder.load_string('''
-#: import EffectWidget kivy.uix.effectwidget
-
-### This is raw custom layout needed later in structure
-<matrixInput>:
-    
-### This is entry point of our layout structure  
-<mainWindow>:
-    orientation: "vertical"
-    ### This contains whole Part of App Heading
-    BoxLayout:
-        height: self.minimum_height
-        size_hint_y: None
-        padding: [dp(100),dp(8)]
-       
-        ### Draws a white background behind app heading
-        ### Although not compulsary
-        canvas:
-            Color:
-                rgba: 1, 1, 1, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        
-        ### draws a grey line below heading for material feel
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 0.3
-            Rectangle:
-                pos: (self.pos[0] + 0,self.pos[1] - 3)
-                size: self.size
-       
-        ### Button to show our Heading , but doesn't react on clicking
-        MDRoundFlatButton:
-            size_hint_x: 1
-            pos_hint: {'center_x': 0.5}
-            md_bg_color: 0,0,0,0
-            text: "\t\tMatrix   Calculator\t\t"
-            text_color: 0,0,0,0.85
-            font_size: 24
-            font_name: 'ERASDEMI.TTF'
-      
-    ### Contains block below heading for matrix input management
-    BoxLayout:
-        size_hint_y: None
-        height: self.minimum_height
-        
-        ### Instruct user to enter order
-        Label:
-            size: self.texture_size
-            text_size: self.size
-            padding: (60,25)
-            font_size: 18
-            font_name: 'ERASMD.TTF'
-            text: "Enter order of Matrix :"
-            color: 0,0,0,1
-        
-        ### Accepts matrix order from user
-        MDTextFieldRound:
-            height: dp(30)
-            padding: 0, dp(25), 0, dp(10)
-            icon_type: 'without'
-            width: dp(80)
-            
-            normal_color: [0,0,0,0.1]
-            foreground_color: [0,0,0,1]
-            font_size: 18
-            font_family: 'bold'
-            
-            id: order_input
-            on_text_validate: app.get_input()
-        
-        ### This is just an adjustment to position above text field correctly
-        Widget:
-            size_hint_x: None
-    MDSeparator:
-        
-    ### Block below order input mangement to handle matrix values and answer
-    BoxLayout:
-        
-        ### Block to place matrix to get input
-        BoxLayout:
-                    
-            padding: dp(50)
-            size_hint_x: 0.5
-            
-            ### This is an adjustment to position widgets
-            Widget:
-                size_hint_x: 0
-                width: dp(1)
-            
-            ### A grid layout defined at starting of layout
-            ### Contains all blocks as unit position of matrix
-            ### Defined completely in python file for advanced functionality
-            matrixInput:
-                id: input_matrix
-                pos_hint: {'left': 0}
-                size_hint_x: 1
-                spacing: dp(5)
-                
-        ### Block to Show answer related uses           
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint_x: 0.5
-            padding: dp(12)
-            spacing: dp(16)
-            
-            ### Button to initiate the calculation of provided matrix
-            MDRaisedButton:
-                on_press: app.get_matrix()
-                
-                text: 'Calculate >>'
-                font_name: 'Azonix.otf'
-                font_size: 20
-                text_color: 1,1,1,1
-                
-                elevation_normal: 5
-                opposite_colors: True
-                md_bg_color: 1, 0.38, 0.38, 1
-                
-                pos_hint: {'center_x': 0.5}
-                size_hint_x: 1
-            
-            ### This is the place to show the calculated answer
-            Label:
-                id: show_answer
-                        
-                text: ' '
-                font_name: 'Segment7Standard.otf'
-                font_size: 70
-                color: 0,0,0,1
-            
-            ### This is an adjustment to place widgets correctly
-            Widget:
-                size_hint_y: None
-                height: 0
-            
-''')
-
-
-# In[ ]:
-
-    
-### Class for starting point of our app
 class mainWindow(BoxLayout):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Gray'
+    """Class for starting point of our app"""
+    pass
 
-### Development of grid layout that contains all the units of matrix  
-class matrixInput(GridLayout):
+class MatrixValue(TextInput):
+    def __init__(self, **kwargs):
+        super(MatrixValue, self).__init__(**kwargs)
+        self.multiline = False
+        self.input_type = 'number'
+        self.font_size = sp(25)
+        self.font_family = 'bold'
+        self.background_color = [0, 0.6, 0.3, 0.5]
+        self.foreground_color = [1, 1, 0.8, 1]
 
-    ### Function to make determinant as per the provided order    
-    def build(self,order):
-        
+
+# Development of grid layout that contains all the units of matrix
+class MatrixGrid(GridLayout, BoxLayout):
+    order = StringProperty('')
+
+    # Function to make determinant as per the provided order
+    def build_matrix(self, *args):
+        error = Validator.chk_order(self.order)
+        if error:
+            self.parent.parent.ids.error_box.text = error
+            return
+        else:
+            self.parent.parent.ids.error_box.text = ''
+
+        order = int(self.order)
+
         self.clear_widgets()
         self.cols = order
         self.rows = order
-        
-        box_color = [0,0.6,0.3,0.7]
-        text_color = [1,1,0.8,1]
-        
-        for i in range (1,order+1):
-            for k in range (1,order+1):
+
+        for i in range(1, order + 1):
+            for k in range(1, order + 1):
                 set_id = 'a' + str(i) + str(k)
-                text_input = TextInput(id= set_id, multiline = False,input_type= 'number', font_size = 20,background_color = box_color,foreground_color = text_color)
+                text_input = MatrixValue(id=set_id)
                 self.add_widget(text_input)
 
-    ### Initiator required to create layout
+    def on_order(self, *args):
+        self.build_matrix(self)
+
+class MatrixCalculator(MDApp):
+    """Main App Class of this project."""
     def __init__(self, **kwargs):
-        super(matrixInput, self).__init__(**kwargs)
-        self.build(0)
+        self.title = "Matrix Calculator"
+        self.icon = './data/icon.png'
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.primary_palette = "Gray"
+        super().__init__(**kwargs)
 
 
-# In[ ]:
-
-### Our main App 
-### All the initiations, exchanges and processes done here
-class matrixCalculator(App):
-    theme_cls = ThemeManager()
-    theme_cls.primary_palette = 'Gray'
-    
-    ### Receive order from user
-    def get_input(self):
-        order =  int(self.root.ids.order_input.text)
-        self.root.ids.input_matrix.build(order)
-    ### Convert list of matrix values into rows and column type matrix    
-    def matrix_builder(self,values_list): 
+    def matrix_builder(self,values_list):
+        """Convert list of matrix values into rows and column type matrix"""
         Mvalues_list = []
         temp_list = []
         order = int(math.sqrt(len(values_list)))
@@ -228,26 +80,32 @@ class matrixCalculator(App):
             temp_list.clear()
             
         return Mvalues_list
-    
-    
-    ### Receive values of matrix units provided in grid layout   
-    def get_matrix(self):
-        
-        ### Get List of values from matrix_input
+
+    def calculate(self):
+
+        # // Receives all text boxes of Matrix Grid
         children_list = self.root.ids.input_matrix.children
-        values_list = []
-        for child in children_list:
-            values_list.append(int(child.text))
-        
-        ### passing values to convert in matrix form
+        if not children_list:  # // Checks that calculation not done on empty set of values
+            return "---"
+        values_list = []  # // List of all valid values user entered
+        for child in children_list:  # // Checks and Fetches all units of matrix one-by-one
+            error = Validator.chk_value(child.text)
+            if error:
+                self.root.ids.error_box.text = error  # // Prints Error message
+                return "----"
+            else:
+                values_list.append(Fraction(child.text).limit_denominator(999))  # Value converted to fraction
+        else:
+            self.root.ids.error_box.text = ''  # // Removes error message when all values checked
+
+        # // Covert Linear List to Matrix-type Nested List
         values_list.reverse()
         matrix_list = self.matrix_builder(values_list)
-        
-        ### get determinant value from value dedicated class
-        determinant = Determinant()
-        answer = Determinant.determinantOfMatrix(matrix_list)
-        
-        ### Sets the answer to show_answer
+
+        # // Passes the matrix to calculate Determinant
+        answer = Calculator.determinant(matrix_list)
+
+        # // Sets the answer to show_answer label
         self.root.ids.show_answer.text = str(answer)
     
     ### Sets mainWindow as root of our window
@@ -255,41 +113,89 @@ class matrixCalculator(App):
         return mainWindow()
 
 
-# In[ ]:
-
-#### Class dedicated to calculating determinant of matrix
-class Determinant():
-    def determinantOfMatrix(A, total=0):
+# ////// Class dedicated to calculating determinant of matrix
+class Calculator:
+    def determinant(A, total=0):
         # Section 1: store indices in list for row referencing
-        
+
         indices = list(range(len(A)))
-         
+
         # Section 2: when at 2x2 submatrices recursive calls end
         if len(A) == 2 and len(A[0]) == 2:
             val = A[0][0] * A[1][1] - A[1][0] * A[0][1]
             return val
-     
-        # Section 3: define submatrix for focus column and 
+
+        # Section 3: define submatrix for focus column and
         #      call this function
-        for fc in indices: # A) for each focus column, ...
+        for fc in indices:  # A) for each focus column, ...
             # find the submatrix ...
-            As = list(A) # B) make a copy, and ...
-            As = As[1:] # ... C) remove the first row
-            height = len(As) # D) 
-     
-            for i in range(height): 
+            As = list(A)  # B) make a copy, and ...
+            As = As[1:]  # ... C) remove the first row
+            height = len(As)  # D)
+
+            for i in range(height):
                 # E) for each remaining row of submatrix ...
                 #     remove the focus column elements
-                As[i] = As[i][0:fc] + As[i][fc+1:] 
-     
-            sign = (-1) ** (fc % 2) # F) 
+                As[i] = As[i][0:fc] + As[i][fc + 1:]
+
+            sign = (-1) ** (fc % 2)  # F)
             # G) pass submatrix recursively
-            sub_det = Determinant.determinantOfMatrix(As)
+            sub_det = Calculator.determinant(As)
             # H) total all returns from recursion
-            total += sign * A[0][fc] * sub_det 
-     
+            total += sign * A[0][fc] * sub_det
+
         return total
+
+class Validator:
+
+    def chk_order(order):
+        error = None
+        order = order.strip()
+
+        try:
+            # // Raises Exception if any of below to conditions are not satisfied
+            order = int(order)
+            if order == '':
+                raise Exception
+            elif not (0 < order < 6):
+                raise Exception
+        except:
+            error = "Order must be single digit in range 1 to 5."
+
+        # // Returns "None" for no errors
+        # // Otherwise specified error statement
+        return error
+
+    def chk_value(value):
+        value = re.sub(r"\s", "", value)  # // Removes all types of whitespaces
+        error = None
+
+        master_pattern = re.compile(r"^((\+|\-)?\d{1,3}(([\.]\d{1,2})|([\/]\d{1,3}))?){1}$")
+
+        # // Checks for standard pattern
+        # // If false, then do some pre-tests to find exact problem
+        if not re.match(master_pattern, value):
+            if value == '':
+                error = "Any part of matrix can't be left EMPTY."
+            elif re.search(r"[^\+\-\.\/0-9]", value):
+                error = "Invalid characters in one/more values."
+            elif len(re.findall(r"[\/]", value)) > 1:
+                error = "More than one \'/\' in single value not allowed."
+            elif re.search(r"[\/](\+|\-)", value):
+                error = "+/-  can only be in Numerator, NOT in Denominator."
+            elif re.match(r"^((\+|\-)?\d{1,3}([\.]\d)?[\/](\+|\-)?\d{1,3}([\.]\d)?)$", value):
+                error = "Both decimal and fraction can't be in a single value."
+            elif re.search(r"\d{4,}", value):
+                error = "Any Numerical part can't hold more than 3 digits."
+            else:
+                error = "Improper structure of entered value/s."
+
+        # // Returns "None" for no errors
+        # // Otherwise specified error statement
+        return error
 
 ### Driver needed to self start the function ---- VROOM! VROOM!
 if __name__ == "__main__":
-    matrixCalculator().run()
+    if hasattr(sys,'_MEIPASS'):
+        resource_add_path(os.path.join(sys._MEIPASS))
+    MatrixCalculator().run()

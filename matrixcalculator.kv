@@ -1,0 +1,109 @@
+
+
+### This is entry point of our layout structure
+<mainWindow>:
+    orientation: "vertical"
+    ### This contains whole Part of App Heading
+    BoxLayout:
+        size_hint_y: 0.131
+        padding: [self.width/14,0]
+
+
+        ### Button to show our Heading , but doesn't react on clicking
+        MDRoundFlatButton:
+            size_hint_x: 1
+            pos_hint: {'center_x': 0.5, 'center_y':0.5}
+            md_bg_color: 0,0,0,0
+            text: "\t\tMatrix   Calculator\t\t"
+            text_color: 0,0,0,0.85
+            font_size: sp(24)
+            font_name: './data/fonts/ERASDEMI.TTF'
+
+    MDSeparator:
+        height: dp(3)
+        color: 0,0,0,0.2
+
+    ### Contains block below heading for matrix input management
+    BoxLayout:
+        size_hint_y: 0.15
+        padding: [self.width/5,0]
+        spacing: self.width/14
+
+        ### Instruct user to enter order
+        Label:
+            valign: 'center'
+            halign: 'left'
+            text_size: self.size
+            font_size: sp(20)
+            font_name: './data/fonts/ERASMD.TTF'
+            text: "Enter order of Matrix :"
+            color: 0,0,0,1
+
+        ### Accepts matrix order from user
+        MDTextFieldRound:
+            pos_hint: {'center_y':0.5}
+            padding: dp(100)
+
+            icon_type: 'without'
+            width: dp(80)
+
+            normal_color: [0,0,0,0.1]
+            foreground_color: [0,0,0,1]
+            font_size: sp(18)
+            font_family: 'bold'
+
+            id: order_input
+            on_text_validate: root.ids.input_matrix.order=self.text
+
+    MDSeparator:
+
+    ### Block below order input mangement to handle matrix values and answer
+    BoxLayout:
+        size_hint_y: 0.69
+        padding: dp(40)
+        spacing: dp(35)
+
+        ### Block to place matrix to get input
+        MatrixGrid:
+            id: input_matrix
+            size_hint_x: 0.6
+            pos_hint: {'center_x':0.5}
+            spacing: dp(5)
+
+        ### Block to Show answer related uses
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.4
+
+            ### This is the place to show the calculated answer
+            Label:
+                id: show_answer
+                text: ' '
+                font_name: './data/fonts/Segment7Standard.otf'
+                font_size: sp(60)
+                color: 0,0,0,1
+
+            ### Button to initiate the calculation of provided matrix
+            MDRaisedButton:
+                on_press: app.calculate()
+
+                text: 'Calculate >>'
+                font_name: './data/fonts/Azonix.otf'
+                font_size: sp(16)
+                text_color: 1,1,1,1
+
+                elevation_normal: 5
+
+                md_bg_color: 1, 0.38, 0.38, 1
+
+                pos_hint: {'center_x': 0.5}
+                size_hint_x: 1
+
+    Label:
+        id: error_box
+        color: 1,0,0,1
+        padding: [dp(10)]*2
+        text_size: self.width, None
+        size_hint: (1,None)
+        halign: 'center'
+        height: self.texture_size[1]
