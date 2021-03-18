@@ -1,0 +1,190 @@
+#: import utils kivy.utils
+
+<ToggleButton>:
+    background_normal: './assets/images/0099ff.png'
+    background_down : './assets/images/00ff51.png'
+
+    font_size: sp(17)
+    font_name: 'Roboto-Regular.ttf'
+
+
+
+# ////// Entry point of our layout structure
+<MainWindow>:
+    orientation: "vertical"
+
+    # // Area : Heading
+    AnchorLayout:
+        size_hint_y: 0.1071
+        AnchorLayout:
+            anchor_x: 'center'
+            size_hint_y: 0.67
+            Label:
+                id: heading
+                size_hint_x: 0.9394
+                size_hint_max_x: dp(500)
+                canvas.before:
+                    Color:
+                        rgb: utils.get_color_from_hex('#0C335C')
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [(dp(27),dp(27)),]
+
+                text: "Matrix  Calculator      "
+                font_family: 'bold'
+                font_name: './assets/fonts/Alata-Regular.ttf'
+                font_size: sp(23)
+
+                halign: 'right'
+                valign: 'center'
+                text_size: self.size
+                Image:
+                    pos: (self.parent.x-self.parent.width/3,self.parent.y)
+                    size: self.parent.size
+                    source: './assets/images/icon.png'
+
+    # // Area : Input
+    AnchorLayout:
+        size_hint_y: 0.1642
+        # padding: (self.width*0.0606,0)
+
+        MDCard:
+            orientation: "vertical"
+            size_hint: (0.8788,0.9)
+            size_hint_max_x: dp(600)
+            pos_hint: {'center_x':0.5}
+            md_bg_color: utils.get_color_from_hex('#DBE2E6')
+            border_radius: dp(16)
+            border_color_a: dp(0.2)
+
+            # ////// Instruct user to enter order
+            Label:
+                valign: 'center'
+                halign: 'center'
+                text_size: self.size
+                font_size: sp(18)
+                font_name: './assets/fonts/BalooBhai2-Regular.ttf'
+                text: "Choose order of Matrix :"
+                color: utils.get_color_from_hex('#4E5356')
+
+            BoxLayout:
+                orientation: "horizontal"
+                padding: (self.parent.width/9,dp(12))
+                spacing: self.parent.width/10
+                ToggleButton:
+                    text: '2'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
+                ToggleButton:
+                    text: '3'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
+                ToggleButton:
+                    text: '4'
+                    group: 'matrix_order'
+                    on_press: root.ids.input_matrix.order = self.text
+
+
+    # // Area : Display
+    AnchorLayout:
+        anchor_x: 'center'
+        size_hint_y: 0.1714
+        MDCard:
+            size_hint: (0.9,None)
+            padding: (10,0)
+            height: root.ids.display_box.height
+            opacity: 1 if root.ids.display_box.text else 0
+            #:set light_red utils.get_color_from_hex('#FF615C')
+            #:set light_green utils.get_color_from_hex('#A0FF5C')
+            md_bg_color: light_red if (root.ids.display_box.text).startswith('!') else light_green
+            Label:
+                id: display_box
+                height: self.texture_size[1] + dp(20)
+                markup: True
+                max_lines: 4
+                #:set tiranga_red utils.get_color_from_hex('#EB730A')
+                #:set tiranga_green utils.get_color_from_hex('#3C9532')
+
+                #:set red utils.get_color_from_hex('#973126')
+                color: red if (root.ids.display_box.text).startswith('!') else tiranga_green
+                text: ''
+                font_name: 'Roboto-Bold.ttf'
+                font_size: sp(15)
+                text_size: self.width,None
+                valign: 'center'
+
+
+    # // Area : Matrix
+    AnchorLayout:
+        anchor_y: 'center'
+        size_hint_y: 0.4071
+        padding: (self.width*0.0606,0)
+
+        MatrixGrid:
+            id: input_matrix
+            size_hint_x: 1
+            size_hint_max_x: dp(700)
+            size_hint_y: None
+            height: self.minimum_height
+            padding: [dp(20+(10*(4-self.order)) ), dp(30+(10*(self.order-2)))]
+            spacing: dp(6.66*3**(4-self.order))
+            row_force_default: True
+            row_default_height: dp(50)
+
+            opacity: 0 if self.order == 0 else 1
+            canvas.before:
+                Color:
+                    rgb: utils.get_color_from_hex('#EBF7FF')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+    # // Area : Control
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: 0.1500
+        padding: (self.width*0.0606,0.2)
+
+        # // Button to clear matrix_input
+        Button:
+            on_press: root.ids.input_matrix.order = 0
+            size_hint_x: 0.3
+            size_hint_y: 2/5
+            padding_x: dp(10)
+            pos_hint: {'center_y':0.5}
+            background_color: 0,0,0,0
+            text: '  Reset'
+            font_name: 'Roboto-BoldItalic.ttf'
+            font_size: sp(16.5)
+
+            canvas.before:
+                Color:
+                    rgb: tiranga_red
+                Quad:
+                    points: (self.parent.width*4.5/15,self.height+self.y,self.parent.width*5.5/15,self.y,self.x,self.y,self.x,self.height+self.y)
+
+            MDIcon:
+                icon: 'refresh'
+                size: self.parent.size
+                pos: (self.parent.x+self.parent.padding_x,self.parent.y)
+                color: 1,1,1,1
+
+        # ////// Button to initiate the calculation of provided matrix
+        Button:
+            on_press: app.calculate()
+            text: '   Calculate  >>'
+            font_name: './assets/fonts/ChakraPetch-SemiBoldItalic.ttf'
+            font_size: sp(25)
+
+            size_hint_x: 0.6
+            size_hint_y: 2/5
+
+            pos_hint: {'center_x': 0.5,'center_y':0.5}
+            background_color: 0,0,0,0
+
+            canvas.before:
+                Color:
+                    rgb: tiranga_green
+                Quad:
+                    points: (self.parent.width*5/15,self.height+self.y,self.parent.width*6/15,self.y,self.x+self.width,self.y,self.x+self.width,self.height+self.y)
