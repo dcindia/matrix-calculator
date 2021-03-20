@@ -74,16 +74,25 @@
                 spacing: self.parent.width/10
                 ToggleButton:
                     text: '2'
+                    matrix_order: str(int(root.ids.input_matrix.order))
                     group: 'matrix_order'
-                    on_press: root.ids.input_matrix.order = self.text
+                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
+                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
+                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
                 ToggleButton:
                     text: '3'
+                    matrix_order: str(int(root.ids.input_matrix.order))
                     group: 'matrix_order'
-                    on_press: root.ids.input_matrix.order = self.text
+                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
+                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
+                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
                 ToggleButton:
                     text: '4'
+                    matrix_order: str(int(root.ids.input_matrix.order))
                     group: 'matrix_order'
-                    on_press: root.ids.input_matrix.order = self.text
+                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
+                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
+                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
 
 
     # // Area : Display
