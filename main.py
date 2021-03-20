@@ -19,10 +19,23 @@ kivy.require('2.0.0')
 Config.write()
 kivy.resources.resource_add_path("./")
 
-if platform is "android":
-    Window.softinput_mode = 'below_target'  # // Added to fix text-box hidden behind keyboard
-else:
-    Window.size = (450, 750)
+
+# // Sets status bar color to white on android
+# // Currently, not working properly on modified ROMs like MIUI
+def white_status_bar():
+    from android.runnable import run_on_ui_thread
+
+    @run_on_ui_thread
+    def _white_status_bar():
+        from jnius import autoclass
+        WindowManager = autoclass('android.view.WindowManager$LayoutParams')
+        Color = autoclass('android.graphics.Color')
+        activity = autoclass('org.kivy.android.PythonActivity').mActivity
+        window = activity.getWindow()
+        window.clearFlags(WindowManager.FLAG_TRANSLUCENT_STATUS)
+        window.addFlags(WindowManager.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.setStatusBarColor(Color.WHITE)
+    _white_status_bar()
 
 
 class MatrixValue(TextInput):
@@ -117,6 +130,12 @@ class MatrixCalculator(MDApp):
 
     # //// Sets the root of our window
     def build(self):
+        if platform == "android":
+            Window.softinput_mode = 'below_target'  # // Added to fix text-box hidden behind keyboard
+            white_status_bar()
+        else:
+            Window.size = (450, 750)  # // Default size for desktop
+
         return MainWindow()
 
 
