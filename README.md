@@ -16,7 +16,8 @@ To make such work easier, this project exists. :wink:
 
 | Android | Linux | Windows |
 | ------- | ----- | ------- |
-| [![](samples/badges/amazon-badge.png)](http://www.amazon.com/gp/mas/dl/android?p=group.dcindia.matrixcalc) | [![](https://docs.appimage.org/_images/download-appimage-banner.svg)](https://github.com/dcindia/matrix-calculator/releases/download/v3.2/matrixcalc-v3.2-linux.AppImage) | [![](samples/badges/exe-badge.png)](https://github.com/dcindia/matrix-calculator/releases/download/v3.2/matrixcalc-v3.2-windows.exe) |
+| [![](samples/badges/uptodown-badge.png)](https://matrix-calculator.en.uptodown.com/android) | [![](https://docs.appimage.org/_images/download-appimage-banner.svg)](https://github.com/dcindia/matrix-calculator/releases/download/v3.2/matrixcalc-v3.2-linux.AppImage) | [![](samples/badges/exe-badge.png)](https://github.com/dcindia/matrix-calculator/releases/download/v3.2/matrixcalc-v3.2-windows.exe) |
+| [![](samples/badges/amazon-badge.png)](http://www.amazon.com/gp/mas/dl/android?p=group.dcindia.matrixcalc) |
 
 
 ## Roadmap
