@@ -1,7 +1,9 @@
 # All the import statements needed in current version or upcoming version
 import kivy
-from kivy.metrics import sp
-from kivy.properties import StringProperty, NumericProperty, OptionProperty
+from kivy.metrics import dp, sp
+from kivy.properties import StringProperty, NumericProperty, OptionProperty, ColorProperty
+from kivy.graphics import Color, Rectangle, RoundedRectangle
+from kivy.uix.behaviors import focus
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
@@ -23,7 +25,7 @@ kivy.resources.resource_add_path("./")
 # // Sets status bar color to white on android
 # // Currently, not working properly on modified ROMs like MIUI
 def white_status_bar():
-    from android.runnable import run_on_ui_thread
+    from android.runnable import run_on_ui_thread  # type: ignore
 
     @run_on_ui_thread
     def _white_status_bar():
@@ -43,9 +45,38 @@ class MatrixValue(TextInput):
         super(MatrixValue, self).__init__(**kwargs)
         self.background_normal = ''
         self.multiline = False
+        self.write_tab = False
+        self.padding_y = dp(self.width / 8)
         self.font_size = sp(20)
-        self.background_color = get_color_from_hex('#69B6BA')
-        self.foreground_color = [1, 1, 0.8, 1]
+        self.background_color = [0, 0, 0, 0]
+
+        self.cursor_color = (0, 0, 0, 0)
+        self.fg_color = get_color_from_hex('#240E43')
+        bg_color = get_color_from_hex('#13be8b')
+        self.dummy_cursor_color = (0, 0, 0, 0)
+        with self.canvas.before:
+            Color(bg_color[0], bg_color[1], bg_color[2], bg_color[3])
+            self.rounded_bg = RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(6), ])
+            Color(self.fg_color[0], self.fg_color[1], self.fg_color[2], self.fg_color[3])
+        self.bind(pos=self.update_roundedbg, size=self.update_roundedbg, focus=self.cursor_visibility)
+
+    def add_cursor(self, cursor_color):
+        with self.canvas.after:
+            self.canvas.after.clear()
+            Color(cursor_color[0], cursor_color[1], cursor_color[2], cursor_color[3])
+            self.dummy_cursor = Rectangle(pos=self.cursor_pos, size=(self.cursor_width * 2, -self.line_height))
+
+        self.bind(cursor_pos=self.update_cursor_pos)
+
+    def update_roundedbg(self, *args):
+        self.rounded_bg.pos = self.pos
+        self.rounded_bg.size = self.size
+
+    def update_cursor_pos(self, *args):
+        self.dummy_cursor.pos = self.cursor_pos
+
+    def cursor_visibility(self, *args):
+        self.add_cursor([1, 0, 0, 1] if self.focus else [0, 0, 0, 0])
 
 
 # Development of grid layout that contains all the units of matrix
@@ -56,7 +87,10 @@ class MatrixGrid(GridLayout, BoxLayout):
     def on_order(self, *args):
 
         order = int(self.order)
-        MDApp.get_running_app().root.ids.display_box.text = ''
+        try:
+            MDApp.get_running_app().root.ids.display_box.text = ''
+        except Exception:
+            print("display_box still not created.")
         self.clear_widgets()
         self.cols = order
         self.rows = order
@@ -126,7 +160,7 @@ class MatrixCalculator(MDApp):
         answer = Calculator().determinant(matrix_list)
 
         # // Sets the answer to display_box
-        self.root.ids.display_box.text = "[b]Determinant:[/b]\n           [size=25sp][anchor='right']{answer}[/size]".format(answer=str(answer))
+        self.root.ids.display_box.text = "[size=25sp]Determinant:       [anchor='right']{answer}[/size]".format(answer=str(answer))
 
     # //// Sets the root of our window
     def build(self):

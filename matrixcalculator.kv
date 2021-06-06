@@ -1,4 +1,6 @@
 #: import utils kivy.utils
+#: import dp kivy.metrics.dp
+#: import ColorProperty kivy.properties
 
 <ToggleButton>:
     background_normal: './assets/images/0099ff.png'
@@ -6,6 +8,45 @@
 
     font_size: sp(17)
     font_name: 'Roboto-Regular.ttf'
+
+<NumberStepper@BoxLayout>:
+    value: 0
+    min: 0
+    max: 999999
+    orientation: 'horizontal'
+    size_hint: None, None
+    height: dp(50)
+    width: dp(200)
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex('#B2B8C7')
+        RoundedRectangle:
+            size: self.size
+            pos:self.pos
+            radius: [dp(5),]
+    MDIconButton:
+        icon: 'minus'
+        on_press: self.parent.value -= 1
+        disabled: True if self.parent.value <= self.parent.min else False
+    Label:
+        canvas.before:
+            Color:
+                rgba: utils.get_color_from_hex('#C6F0C8')
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        text_size: self.size
+        font_size: sp(20)
+        color: 0,0,0,1
+        size_hint_y: None
+        text: str(self.parent.value)
+        halign: 'center'
+        valign: 'center'
+        height: dp(50)
+    MDIconButton:
+        icon: 'plus'
+        on_press: self.parent.value += 1
+        disabled: True if self.parent.value >= self.parent.max else False
 
 
 
@@ -49,79 +90,92 @@
         size_hint_y: 0.1642
         # padding: (self.width*0.0606,0)
 
-        MDCard:
+        BoxLayout:
             orientation: "vertical"
             size_hint: (0.8788,0.9)
             size_hint_max_x: dp(600)
             pos_hint: {'center_x':0.5}
-            md_bg_color: utils.get_color_from_hex('#DBE2E6')
-            border_radius: dp(16)
-            border_color_a: dp(0.2)
+            canvas.before:
+                Color:
+                    rgba: utils.get_color_from_hex('#DBE2E6')
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [dp(10),]
 
             # ////// Instruct user to enter order
             Label:
+                size_hint_y: 0.4
                 valign: 'center'
                 halign: 'center'
                 text_size: self.size
-                font_size: sp(18)
+                font_size: sp(19)
                 font_name: './assets/fonts/BalooBhai2-Regular.ttf'
                 text: "Choose order of Matrix :"
                 color: utils.get_color_from_hex('#4E5356')
-
-            BoxLayout:
-                orientation: "horizontal"
-                padding: (self.parent.width/9,dp(12))
-                spacing: self.parent.width/10
-                ToggleButton:
-                    text: '2'
-                    matrix_order: str(int(root.ids.input_matrix.order))
-                    group: 'matrix_order'
-                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
-                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
-                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
-                ToggleButton:
-                    text: '3'
-                    matrix_order: str(int(root.ids.input_matrix.order))
-                    group: 'matrix_order'
-                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
-                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
-                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
-                ToggleButton:
-                    text: '4'
-                    matrix_order: str(int(root.ids.input_matrix.order))
-                    group: 'matrix_order'
-                    on_press: self.state = 'down' if (self.matrix_order == self.text) else 'normal'
-                    on_release: root.ids.input_matrix.order = self.text if (self.text != self.matrix_order) else root.ids.input_matrix.order
-                    on_matrix_order: self.state = 'normal' if (self.matrix_order != self.text) else 'down'
+            
+            AnchorLayout:
+                size_hint_y: 0.6
+                NumberStepper:
+                    id: input_order
+                    value: 3
+                    min: 1
+                    max: 4
+                    anchor_y: 'center'
 
 
     # // Area : Display
     AnchorLayout:
         anchor_x: 'center'
         size_hint_y: 0.1714
-        MDCard:
-            size_hint: (0.9,None)
-            padding: (10,0)
+        #:set indicator_red utils.get_color_from_hex('#FF615C')
+        #:set indicator_green utils.get_color_from_hex('#93EF6B')
+
+        BoxLayout:
+            border_radius: "10dp"
+            md_bg_color: 
+            size_hint: (0.8788,None)
             height: root.ids.display_box.height
             opacity: 1 if root.ids.display_box.text else 0
-            #:set light_red utils.get_color_from_hex('#FF615C')
-            #:set light_green utils.get_color_from_hex('#A0FF5C')
-            md_bg_color: light_red if (root.ids.display_box.text).startswith('!') else light_green
+            elevation: 0
+            indicator_color: [0,0,0,0]
+            canvas.before:
+                Color:
+                    rgba: utils.get_color_from_hex('#F2E2F3')
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [dp(8), ]
+
+            Widget: # Indicator of error or answer
+                size_hint: None, None
+                size: [dp(10), self.parent.height]
+                canvas:
+                    Color:
+                        rgba: self.parent.indicator_color
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [dp(8), 0, 0, dp(8)]
+            
             Label:
                 id: display_box
                 height: self.texture_size[1] + dp(20)
+                padding: (10,0)
                 markup: True
                 max_lines: 4
-                #:set tiranga_red utils.get_color_from_hex('#EB730A')
-                #:set tiranga_green utils.get_color_from_hex('#3C9532')
-
-                #:set red utils.get_color_from_hex('#973126')
-                color: red if (root.ids.display_box.text).startswith('!') else tiranga_green
                 text: ''
                 font_name: 'Roboto-Bold.ttf'
                 font_size: sp(15)
                 text_size: self.width,None
                 valign: 'center'
+
+                #:set tiranga_red utils.get_color_from_hex('#EB730A')
+                #:set dark_green utils.get_color_from_hex('#3C9532')
+                #:set dark_red utils.get_color_from_hex('#973126')
+
+                color: dark_red if (root.ids.display_box.text).startswith('!') else dark_green
+                on_text: self.parent.indicator_color = indicator_red if (self.text).startswith('!') else indicator_green
 
 
     # // Area : Matrix
@@ -132,6 +186,7 @@
 
         MatrixGrid:
             id: input_matrix
+            order: root.ids.input_order.value
             size_hint_x: 1
             size_hint_max_x: dp(700)
             size_hint_y: None
@@ -144,10 +199,11 @@
             opacity: 0 if self.order == 0 else 1
             canvas.before:
                 Color:
-                    rgb: utils.get_color_from_hex('#EBF7FF')
-                Rectangle:
+                    rgba: utils.get_color_from_hex('#d3dde4')
+                RoundedRectangle:
                     size: self.size
                     pos: self.pos
+                    radius: [dp(10), ]
 
     # // Area : Control
     BoxLayout:
@@ -194,6 +250,6 @@
 
             canvas.before:
                 Color:
-                    rgb: tiranga_green
+                    rgb: dark_green
                 Quad:
                     points: (self.parent.width*5/15,self.height+self.y,self.parent.width*6/15,self.y,self.x+self.width,self.y,self.x+self.width,self.height+self.y)
