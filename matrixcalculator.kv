@@ -26,6 +26,7 @@
             radius: [dp(5),]
     MDIconButton:
         icon: 'minus'
+        size_hint_x: 0.3
         on_press: self.parent.value -= 1
         disabled: True if self.parent.value <= self.parent.min else False
     Label:
@@ -38,13 +39,14 @@
         text_size: self.size
         font_size: sp(20)
         color: 0,0,0,1
-        size_hint_y: None
+        size_hint: 0.4, None
         text: str(self.parent.value)
         halign: 'center'
         valign: 'center'
         height: dp(50)
     MDIconButton:
         icon: 'plus'
+        size_hint_x: 0.3
         on_press: self.parent.value += 1
         disabled: True if self.parent.value >= self.parent.max else False
 
@@ -114,14 +116,29 @@
                 text: "Choose order of Matrix :"
                 color: utils.get_color_from_hex('#4E5356')
             
-            AnchorLayout:
+            BoxLayout:
                 size_hint_y: 0.6
+                padding: dp(10)
+                spacing: dp(10)
                 NumberStepper:
-                    id: input_order
+                    id: input_order_m
+                    size_hint_x: 0.45
                     value: 3
                     min: 1
                     max: 4
-                    anchor_y: 'center'
+                Label:
+                    text: "✕"
+                    color: 0,0,0,1
+                    font_size: sp(20)
+                    font_name: 'DejaVuSans.ttf'
+                    size_hint_x: 0.1
+                NumberStepper:
+                    id: input_order_n
+                    size_hint_x: 0.45
+                    value: 3
+                    min: 1
+                    max: 4
+                    
 
 
     # // Area : Display
@@ -181,22 +198,22 @@
     # // Area : Matrix
     AnchorLayout:
         anchor_y: 'center'
-        size_hint_y: 0.4071
+        size_hint_y: 0.4571
         padding: (self.width*0.0606,0)
 
         MatrixGrid:
             id: input_matrix
-            order: root.ids.input_order.value
+            order: [root.ids.input_order_m.value, root.ids.input_order_n.value]
             size_hint_x: 1
             size_hint_max_x: dp(700)
             size_hint_y: None
             height: self.minimum_height
-            padding: [dp(20+(10*(4-self.order)) ), dp(30+(10*(self.order-2)))]
-            spacing: dp(6.66*3**(4-self.order))
+            padding: [dp(20+(10*(4-self.order[1])) ), dp(30-(7*(self.order[0]-2)))]
+            spacing: [dp(6.66*3**(4-self.order[1])), dp(6.66*3**(4-self.order[0]))]
             row_force_default: True
             row_default_height: dp(50)
 
-            opacity: 0 if self.order == 0 else 1
+            opacity: 0 if self.order == [0, 0] else 1
             canvas.before:
                 Color:
                     rgba: utils.get_color_from_hex('#d3dde4')
@@ -208,14 +225,14 @@
     # // Area : Control
     BoxLayout:
         orientation: 'horizontal'
-        size_hint_y: 0.1500
-        padding: (self.width*0.0606,0.2)
+        size_hint_y: 0.1000
+        padding: (self.width*0.0606,0)
 
         # // Button to clear matrix_input
         Button:
-            on_press: root.ids.input_matrix.order = 0
+            on_press: root.ids.input_matrix.order = [0, 0]
             size_hint_x: 0.3
-            size_hint_y: 2/5
+            size_hint_y: 3/5
             padding_x: dp(10)
             pos_hint: {'center_y':0.5}
             background_color: 0,0,0,0
@@ -243,7 +260,7 @@
             font_size: sp(25)
 
             size_hint_x: 0.6
-            size_hint_y: 2/5
+            size_hint_y: 3/5
 
             pos_hint: {'center_x': 0.5,'center_y':0.5}
             background_color: 0,0,0,0

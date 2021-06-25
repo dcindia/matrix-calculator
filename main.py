@@ -1,9 +1,8 @@
 # All the import statements needed in current version or upcoming version
 import kivy
 from kivy.metrics import dp, sp
-from kivy.properties import StringProperty, NumericProperty, OptionProperty, ColorProperty
+from kivy.properties import ListProperty
 from kivy.graphics import Color, Rectangle, RoundedRectangle
-from kivy.uix.behaviors import focus
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
@@ -81,22 +80,21 @@ class MatrixValue(TextInput):
 
 # Development of grid layout that contains all the units of matrix
 class MatrixGrid(GridLayout, BoxLayout):
-    order = NumericProperty(0)
+    order = ListProperty([0, 0])
 
     # Function to make Matrix view as per the provided order
     def on_order(self, *args):
 
-        order = int(self.order)
         try:
             MDApp.get_running_app().root.ids.display_box.text = ''
         except Exception:
             print("display_box still not created.")
         self.clear_widgets()
-        self.cols = order
-        self.rows = order
+        self.rows = int(self.order[0])
+        self.cols = int(self.order[1])
 
-        for i in range(1, order + 1):
-            for k in range(1, order + 1):
+        for i in range(1, self.order[0] + 1):
+            for k in range(1, self.order[1] + 1):
                 set_id = 'a' + str(i) + str(k)
                 text_input = MatrixValue()
                 text_input.id = set_id
@@ -115,11 +113,11 @@ class MatrixCalculator(MDApp):
     def matrix_builder(self, values_list):
         Mvalues_list = []
         temp_list = []
-        order = int(self.root.ids.input_matrix.order)
+        order = self.root.ids.input_matrix.order
 
-        for i in range(order):
-            for k in range(order):
-                temp_list.append(values_list[order * i + k])
+        for i in range(order[0]):
+            for k in range(order[1]):
+                temp_list.append(values_list[order[0] * i + k])
             Mvalues_list.append(list(temp_list))
             temp_list.clear()
 
@@ -135,7 +133,7 @@ class MatrixCalculator(MDApp):
         values_list = []  # // List of all valid values user entered
         error_list = []
         for child in children_list:  # // Checks and Fetches all units of matrix one-by-one
-            error = Validator().chk_value(child.text)
+            error = Validator().chk_value(child.text, self.root.ids.input_matrix.order)
 
             if error and error not in error_list:
                 error_list.append(error)
@@ -216,7 +214,7 @@ class Calculator:
 # ////// Class dedicated to verify user inputs
 class Validator:
 
-    def chk_value(self, value):
+    def chk_value(self, value, order):
         value = re.sub(r"\s", "", value)  # // Removes all types of whitespaces
         error = None
 
@@ -225,7 +223,9 @@ class Validator:
         # // Checks for standard pattern
         # // If false, then do some pre-tests to find exact problem
         if not re.match(master_pattern, value):
-            if value == '':
+            if order[0] != order[1]:
+                error = "! Square matrix required for Determinant."
+            elif value == '':
                 error = "! Any part of matrix can't be EMPTY."
             elif re.search(r"[^\+\-\.\/0-9]", value):
                 error = "! Invalid characters in one/more values."
