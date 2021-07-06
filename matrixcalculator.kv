@@ -1,13 +1,8 @@
 #: import utils kivy.utils
 #: import dp kivy.metrics.dp
+# #: import MChip chip.MYChip
 #: import ColorProperty kivy.properties
 
-<ToggleButton>:
-    background_normal: './assets/images/0099ff.png'
-    background_down : './assets/images/00ff51.png'
-
-    font_size: sp(17)
-    font_name: 'Roboto-Regular.ttf'
 
 <NumberStepper@BoxLayout>:
     value: 0
@@ -89,7 +84,7 @@
 
     # // Area : Input
     AnchorLayout:
-        size_hint_y: 0.1642
+        size_hint_y: 0.1442
         # padding: (self.width*0.0606,0)
 
         BoxLayout:
@@ -138,13 +133,47 @@
                     value: 3
                     min: 1
                     max: 4
+    AnchorLayout:
+        size_hint_y: 0.12
+        anchor_x: 'center'
+        padding: 0, dp(10)
+        StackLayout:
+            padding: dp(20)
+            spacing: dp(20)
+            size_hint_x: 0.8788
+            canvas:
+                Color:
+                    rgba: utils.get_color_from_hex('#D1E0F0')
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [dp(10),]
+            MDChooseChip:
+                MDChip:
+                    label: "Determinant"
+                    icon: ''
+                    font_name: './assets/fonts/BalooBhai2-Regular.ttf'
+                    radius: dp(5) 
+                    selected_chip_color: utils.get_color_from_hex('#186DC9')
+                    color: utils.get_color_from_hex('#42B1FA')
+                    callback: app.set_operation_mode
+                MDChip:
+                    label: "Rank of Matrix"
+                    icon: ''
+                    font_name: './assets/fonts/BalooBhai2-Regular.ttf'
+                    radius: dp(5) 
+                    selected_chip_color: utils.get_color_from_hex('#186DC9')
+                    color: utils.get_color_from_hex('#42B1FA')
+                    callback: app.set_operation_mode
+            
+
                     
 
 
     # // Area : Display
     AnchorLayout:
         anchor_x: 'center'
-        size_hint_y: 0.1714
+        size_hint_y: 0.1214
         #:set indicator_red utils.get_color_from_hex('#FF615C')
         #:set indicator_green utils.get_color_from_hex('#93EF6B')
 
@@ -198,7 +227,7 @@
     # // Area : Matrix
     AnchorLayout:
         anchor_y: 'center'
-        size_hint_y: 0.4571
+        size_hint_y: 0.4071
         padding: (self.width*0.0606,0)
 
         MatrixGrid:
@@ -230,7 +259,7 @@
 
         # // Button to clear matrix_input
         Button:
-            on_press: root.ids.input_matrix.order = [0, 0]
+            on_press: root.ids.input_matrix.on_order()
             size_hint_x: 0.3
             size_hint_y: 3/5
             padding_x: dp(10)

@@ -1,7 +1,7 @@
 # All the import statements needed in current version or upcoming version
 import kivy
 from kivy.metrics import dp, sp
-from kivy.properties import ListProperty
+from kivy.properties import ListProperty, OptionProperty
 from kivy.graphics import Color, Rectangle, RoundedRectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -104,10 +104,18 @@ class MatrixGrid(GridLayout, BoxLayout):
 # // Our main App
 # // All the initiations, exchanges and processes done here
 class MatrixCalculator(MDApp):
+    operation_mode = OptionProperty('None', options=['determinant', 'rank', 'None'])
+
     def __init__(self, **kwargs):
         self.title = "Matrix Calculator"
         self.theme_cls.theme_style = "Light"
         super().__init__(**kwargs)
+
+    def set_operation_mode(self, chip, text):
+        if text == "Determinant":
+            self.operation_mode = "determinant"
+        elif text == "Rank of Matrix":
+            self.operation_mode = "rank"
 
     # Convert input_matrix into nested lists
     def matrix_builder(self, values_list):
@@ -117,7 +125,7 @@ class MatrixCalculator(MDApp):
 
         for i in range(order[0]):
             for k in range(order[1]):
-                temp_list.append(values_list[order[0] * i + k])
+                temp_list.append(values_list[order[1] * i + k])
             Mvalues_list.append(list(temp_list))
             temp_list.clear()
 
@@ -135,7 +143,7 @@ class MatrixCalculator(MDApp):
         for child in children_list:  # // Checks and Fetches all units of matrix one-by-one
             error = Validator().chk_value(child.text, self.root.ids.input_matrix.order)
 
-            if error and error not in error_list:
+            if error and (error not in error_list):
                 error_list.append(error)
             elif not error:
                 values_list.append(Fraction(child.text).limit_denominator(999))  # Value converted to fraction
@@ -154,11 +162,25 @@ class MatrixCalculator(MDApp):
         values_list.reverse()
         matrix_list = self.matrix_builder(values_list)
 
-        # // Passes the matrix to calculate Determinant
-        answer = Calculator().determinant(matrix_list)
+        answer_string = ""
+        WHITE_SPACE = "       "
+
+        if self.operation_mode == "determinant":
+            # // Passes the matrix to calculate Determinant
+            if Validator().is_square_matrix(matrix_list):
+                determinant = Calculator().determinant(matrix_list)
+                answer_string += f"Determinant:{WHITE_SPACE}[anchor='right']{determinant}"
+        elif self.operation_mode == "rank":
+            try:
+                rank = Calculator().rank_of_matrix(matrix_list)
+                answer_string += f"Rank:{WHITE_SPACE}{rank}"
+            except Exception as e:
+                print(e)
+        else:
+            answer_string += "Choose operation & re-calculate"
 
         # // Sets the answer to display_box
-        self.root.ids.display_box.text = "[size=25sp]Determinant:       [anchor='right']{answer}[/size]".format(answer=str(answer))
+        self.root.ids.display_box.text = f"[size=25sp]{answer_string}[/size]"
 
     # //// Sets the root of our window
     def build(self):
@@ -178,6 +200,16 @@ class MainWindow(BoxLayout):
 
 # ////// Class dedicated to calculating determinant of matrix
 class Calculator:
+
+    def minor_matrix(self, A, order):
+        minors = []
+        for i in range(len(A) - order + 1):
+            partial_minor = A[i: i + order]
+            for k in range(len(A[1]) - order + 1):
+                minor = [B[k: k + order] for B in partial_minor]
+                minors.append(minor)
+        return minors
+
     def determinant(self, A, total=0):
         # Section 1: store indices in list for row referencing
 
@@ -209,6 +241,21 @@ class Calculator:
 
         return total
 
+    def rank_of_matrix(self, A):
+        max_rank = min(len(A), len(A[1]))
+        print("**** Rank detection started ****")
+        for k in reversed(range(1, max_rank + 1)):
+            print("on order:", k)
+            for f in self.minor_matrix(A, k):
+                print("Checking for", f)
+                det = self.determinant(f)
+                print("Got Determinant:", det)
+                if det != 0:
+                    print("!! Accepted Rank:", k)
+                    return k
+        else:
+            return 1
+
 
 # *****************************************************************************
 # ////// Class dedicated to verify user inputs
@@ -223,9 +270,7 @@ class Validator:
         # // Checks for standard pattern
         # // If false, then do some pre-tests to find exact problem
         if not re.match(master_pattern, value):
-            if order[0] != order[1]:
-                error = "! Square matrix required for Determinant."
-            elif value == '':
+            if value == '':
                 error = "! Any part of matrix can't be EMPTY."
             elif re.search(r"[^\+\-\.\/0-9]", value):
                 error = "! Invalid characters in one/more values."
@@ -243,6 +288,14 @@ class Validator:
         # // Returns "None" for no errors
         # // Otherwise specified error statement
         return error
+
+    def is_square_matrix(self, A):
+        rows = len(A)
+        for k in A:
+            if len(k) != rows:
+                return False
+        else:
+            return True
 
 
 # /// Driver needed to self start the function ---- VROOM! VROOM!
