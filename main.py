@@ -1,14 +1,11 @@
 # All the import statements needed in current version or upcoming version
 import kivy
-from kivy.metrics import dp, sp
 from kivy.properties import ListProperty, OptionProperty
-from kivy.graphics import Color, Rectangle, RoundedRectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.textinput import TextInput
+from uixwidgets import MatrixValue
 from kivy.utils import platform
 from kivymd.app import MDApp
-from kivy.utils import get_color_from_hex
 from kivy.config import Config
 from kivy.core.window import Window
 import re
@@ -39,45 +36,6 @@ def white_status_bar():
     _white_status_bar()
 
 
-class MatrixValue(TextInput):
-    def __init__(self, **kwargs):
-        super(MatrixValue, self).__init__(**kwargs)
-        self.background_normal = ''
-        self.multiline = False
-        self.write_tab = False
-        self.padding_y = dp(self.width / 8)
-        self.font_size = sp(20)
-        self.background_color = [0, 0, 0, 0]
-
-        self.cursor_color = (0, 0, 0, 0)
-        self.fg_color = get_color_from_hex('#240E43')
-        bg_color = get_color_from_hex('#13be8b')
-        self.dummy_cursor_color = (0, 0, 0, 0)
-        with self.canvas.before:
-            Color(bg_color[0], bg_color[1], bg_color[2], bg_color[3])
-            self.rounded_bg = RoundedRectangle(pos=self.pos, size=self.size, radius=[dp(6), ])
-            Color(self.fg_color[0], self.fg_color[1], self.fg_color[2], self.fg_color[3])
-        self.bind(pos=self.update_roundedbg, size=self.update_roundedbg, focus=self.cursor_visibility)
-
-    def add_cursor(self, cursor_color):
-        with self.canvas.after:
-            self.canvas.after.clear()
-            Color(cursor_color[0], cursor_color[1], cursor_color[2], cursor_color[3])
-            self.dummy_cursor = Rectangle(pos=self.cursor_pos, size=(self.cursor_width * 2, -self.line_height))
-
-        self.bind(cursor_pos=self.update_cursor_pos)
-
-    def update_roundedbg(self, *args):
-        self.rounded_bg.pos = self.pos
-        self.rounded_bg.size = self.size
-
-    def update_cursor_pos(self, *args):
-        self.dummy_cursor.pos = self.cursor_pos
-
-    def cursor_visibility(self, *args):
-        self.add_cursor([1, 0, 0, 1] if self.focus else [0, 0, 0, 0])
-
-
 # Development of grid layout that contains all the units of matrix
 class MatrixGrid(GridLayout, BoxLayout):
     order = ListProperty([0, 0])
@@ -104,42 +62,26 @@ class MatrixGrid(GridLayout, BoxLayout):
 # // Our main App
 # // All the initiations, exchanges and processes done here
 class MatrixCalculator(MDApp):
-    operation_mode = OptionProperty('None', options=['determinant', 'rank', 'None'])
+    operation_mode = OptionProperty('Determinant', options=['Determinant', 'Rank'])
+    operation_type = OptionProperty('single', options=['single', 'double'])
 
     def __init__(self, **kwargs):
         self.title = "Matrix Calculator"
         self.theme_cls.theme_style = "Light"
         super().__init__(**kwargs)
 
-    def set_operation_mode(self, chip, text):
-        if text == "Determinant":
-            self.operation_mode = "determinant"
-        elif text == "Rank of Matrix":
-            self.operation_mode = "rank"
+    def set_operation(self, operation_name):
+        self.operation_mode = operation_name
 
     # Convert input_matrix into nested lists
-    def matrix_builder(self, values_list):
-        Mvalues_list = []
-        temp_list = []
-        order = self.root.ids.input_matrix.order
-
-        for i in range(order[0]):
-            for k in range(order[1]):
-                temp_list.append(values_list[order[1] * i + k])
-            Mvalues_list.append(list(temp_list))
-            temp_list.clear()
-
-        return Mvalues_list
-
-    # ////// Receive values of matrix units provided in grid layout
-    def calculate(self):
-
+    def make_matrix(self):
         # // Receives all text boxes of Matrix Grid
         children_list = self.root.ids.input_matrix.children
         if not children_list:  # // Checks that calculation not done on empty set of values
             return "---"
         values_list = []  # // List of all valid values user entered
         error_list = []
+
         for child in children_list:  # // Checks and Fetches all units of matrix one-by-one
             error = Validator().chk_value(child.text, self.root.ids.input_matrix.order)
 
@@ -160,22 +102,35 @@ class MatrixCalculator(MDApp):
 
         # // Covert Linear List to Matrix-type Nested List
         values_list.reverse()
-        matrix_list = self.matrix_builder(values_list)
+        Mvalues_list = []
+        temp_list = []
+        order = self.root.ids.input_matrix.order
+
+        for i in range(order[0]):
+            for k in range(order[1]):
+                temp_list.append(values_list[order[1] * i + k])
+            Mvalues_list.append(list(temp_list))
+            temp_list.clear()
+
+        return Mvalues_list
+
+    # ////// Receive values of matrix units provided in grid layout
+    def calculate(self):
+        matrix_list = self.make_matrix()
+        if matrix_list == "---":
+            return
 
         answer_string = ""
         WHITE_SPACE = "       "
 
-        if self.operation_mode == "determinant":
-            # // Passes the matrix to calculate Determinant
-            if Validator().is_square_matrix(matrix_list):
-                determinant = Calculator().determinant(matrix_list)
-                answer_string += f"Determinant:{WHITE_SPACE}[anchor='right']{determinant}"
-        elif self.operation_mode == "rank":
-            try:
-                rank = Calculator().rank_of_matrix(matrix_list)
-                answer_string += f"Rank:{WHITE_SPACE}{rank}"
-            except Exception as e:
-                print(e)
+        if self.operation_mode == "Determinant":
+            determinant = Calculator().determinant(matrix_list)
+            answer_string += f"Determinant:{WHITE_SPACE}[anchor='right']{determinant}"
+
+        elif self.operation_mode == "Rank":
+            rank = Calculator().rank_of_matrix(matrix_list)
+            answer_string += f"Rank:{WHITE_SPACE}{rank}"
+
         else:
             answer_string += "Choose operation & re-calculate"
 
@@ -298,6 +253,6 @@ class Validator:
             return True
 
 
-# /// Driver needed to self start the function ---- VROOM! VROOM!
+# /// Driver needed to self start the app ---- VROOM! VROOM!
 if __name__ == "__main__":
     MatrixCalculator().run()

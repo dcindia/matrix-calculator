@@ -1,6 +1,6 @@
 #: import utils kivy.utils
 #: import dp kivy.metrics.dp
-# #: import MChip chip.MYChip
+#: import * uixwidgets
 #: import ColorProperty kivy.properties
 
 
@@ -134,13 +134,12 @@
                     min: 1
                     max: 4
     AnchorLayout:
-        size_hint_y: 0.12
-        anchor_x: 'center'
-        padding: 0, dp(10)
-        StackLayout:
-            padding: dp(20)
-            spacing: dp(20)
+        size_hint_y: 0.15
+        
+        BoxLayout:
+            orientation: "vertical"
             size_hint_x: 0.8788
+            padding: dp(15)
             canvas:
                 Color:
                     rgba: utils.get_color_from_hex('#D1E0F0')
@@ -148,26 +147,39 @@
                     size: self.size
                     pos: self.pos
                     radius: [dp(10),]
-            MDChooseChip:
-                MDChip:
-                    label: "Determinant"
-                    icon: ''
-                    font_name: './assets/fonts/BalooBhai2-Regular.ttf'
-                    radius: dp(5) 
-                    selected_chip_color: utils.get_color_from_hex('#186DC9')
-                    color: utils.get_color_from_hex('#42B1FA')
-                    callback: app.set_operation_mode
-                MDChip:
-                    label: "Rank of Matrix"
-                    icon: ''
-                    font_name: './assets/fonts/BalooBhai2-Regular.ttf'
-                    radius: dp(5) 
-                    selected_chip_color: utils.get_color_from_hex('#186DC9')
-                    color: utils.get_color_from_hex('#42B1FA')
-                    callback: app.set_operation_mode
-            
+            StackLayout:
+                padding: dp(10), dp(7)
+                spacing: dp(15)
+                size_hint_y: 0.6
+                canvas:
+                    Color:
+                        rgba: utils.get_color_from_hex('#85ADD7')
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [dp(7),]
+                Label:
+                    size_hint_x: None
+                    size: self.texture_size
+                    text: app.operation_mode + " of"
+                    font_name: "Roboto-Bold.ttf"
+                ToggleMatrix:
+                    text: "M1"
+                    state: 'down'
 
-                    
+            StackLayout:
+                size_hint_y: 0.4
+                padding: dp(10)
+                spacing: dp(10)
+                size_hint_x: 0.8788
+                
+                ToggleOperation:
+                    text: "Determinant"
+                    state: 'down'
+                ToggleOperation:
+                    text: "Rank"
+                
+
 
 
     # // Area : Display
@@ -227,7 +239,7 @@
     # // Area : Matrix
     AnchorLayout:
         anchor_y: 'center'
-        size_hint_y: 0.4071
+        size_hint_y: 0.3771
         padding: (self.width*0.0606,0)
 
         MatrixGrid:
@@ -260,11 +272,15 @@
         # // Button to clear matrix_input
         Button:
             on_press: root.ids.input_matrix.on_order()
+
             size_hint_x: 0.3
             size_hint_y: 3/5
             padding_x: dp(10)
             pos_hint: {'center_y':0.5}
+
+            background_normal: ''
             background_color: 0,0,0,0
+
             text: '  Reset'
             font_name: 'Roboto-BoldItalic.ttf'
             font_size: sp(16.5)
@@ -292,6 +308,7 @@
             size_hint_y: 3/5
 
             pos_hint: {'center_x': 0.5,'center_y':0.5}
+            background_normal: ''
             background_color: 0,0,0,0
 
             canvas.before:
