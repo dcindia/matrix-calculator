@@ -1,0 +1,38 @@
+name: build
+
+# Controls when the action will run. 
+on: [push, workflow_dispatch]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  windows:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+      
+      - name: Installing pyinstaller
+        run: pip3 install pyinstaller==4.2
+      
+      - name: Installing kivy-deps
+        run: pip3 install kivy-deps.sdl2 kivy-deps.glew
+
+      - name: Installing Kivy/MD
+        run: pip3 install kivy==2.0.0 kivymd==0.104.1
+        
+      - name: Building EXE
+        run: export KIVY_GL_BACKEND="angle_sdl2";
+             pyinstaller ./.github/windows.spec
+        shell: bash
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Windows EXE
+          path: ./dist/Matrix Calculator.exe

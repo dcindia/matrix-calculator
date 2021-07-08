@@ -1,6 +1,9 @@
 # All the import statements needed in current version or upcoming version
 import kivy
 from kivy.properties import ListProperty, OptionProperty
+import os
+import sys
+from kivy.resources import resource_add_path
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from uixwidgets import MatrixValue
@@ -255,4 +258,6 @@ class Validator:
 
 # /// Driver needed to self start the app ---- VROOM! VROOM!
 if __name__ == "__main__":
+    if hasattr(sys, '_MEIPASS'):
+        resource_add_path(os.path.join(sys._MEIPASS))
     MatrixCalculator().run()

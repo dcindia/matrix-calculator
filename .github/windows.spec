@@ -1,13 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
-from kivy_deps import sdl2, glew
+from kivy_deps import sdl2, glew, angle
 from kivymd import hooks_path as kivymd_hooks_path
 block_cipher = None
 
 
-a = Analysis(['Desktop\\main.py'],
-             pathex=['D:\\Softwares\\Android'],
+a = Analysis(['./../main.py'],
+             pathex=['./../'],
              binaries=[],
-             datas=[('matrixcalculator.kv','.'),('assets\\','assets')],
+             datas=[('./../matrixcalculator.kv','.'),('.\\..\\assets\\','assets')],
              hiddenimports=[],
              hookspath=[kivymd_hooks_path],
              runtime_hooks=[],
@@ -23,7 +23,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-	  *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
+          *[Tree(p) for p in (glew.dep_bins + angle.dep_bins + sdl2.dep_bins)],
           [],
           name='Matrix Calculator',
           debug=False,
@@ -32,4 +32,5 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False)
+          console=False,
+          icon='.\\..\\assets\\images\\icon_desktop.ico')
