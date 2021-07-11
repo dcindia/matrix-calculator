@@ -36,3 +36,33 @@ jobs:
         with:
           name: Windows EXE
           path: ./dist/Matrix Calculator.exe
+
+  linux:
+    runs-on: ubuntu-18.04
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+
+      - name: Installing Dependencies
+        run:  sudo add-apt-repository ppa:kivy-team/kivy;
+              sudo apt-get install -y libmtdev1;  
+      
+      - name: Installing pyinstaller
+        run: pip3 install pyinstaller==4.2
+
+      - name: Installing Kivy/MD
+        run: pip3 install kivy[full]==2.0.0 kivymd==0.104.1
+        
+      - name: Building EXE
+        uses: GabrielBB/xvfb-action@v1 # Virtual x11 server to run GUI
+        with:
+          run: pyinstaller ./.github/linux.spec --log-level DEBUG
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Linux AppImage
+          path: ./dist/MatrixCalculator.AppImage
