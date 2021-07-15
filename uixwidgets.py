@@ -36,7 +36,7 @@ kv = '''
 
     allow_no_selection: False
     group: 'choose_operation'
-    on_state: app.set_operation(self.text)
+    on_state: app.operation_mode = self.text
 
 <ToggleMatrix@ToggleButton>:
     canvas.before:

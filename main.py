@@ -47,7 +47,7 @@ class MatrixGrid(GridLayout, BoxLayout):
     def on_order(self, *args):
 
         try:
-            MDApp.get_running_app().root.ids.display_box.text = ''
+            MDApp.get_running_app().error_list = []
         except Exception:
             print("display_box still not created.")
         self.clear_widgets()
@@ -66,6 +66,7 @@ class MatrixGrid(GridLayout, BoxLayout):
 # // All the initiations, exchanges and processes done here
 class MatrixCalculator(MDApp):
     operation_mode = OptionProperty('Determinant', options=['Determinant', 'Rank'])
+    error_list = ListProperty([])
     operation_type = OptionProperty('single', options=['single', 'double'])
 
     def __init__(self, **kwargs):
@@ -73,8 +74,21 @@ class MatrixCalculator(MDApp):
         self.theme_cls.theme_style = "Light"
         super().__init__(**kwargs)
 
-    def set_operation(self, operation_name):
-        self.operation_mode = operation_name
+    def on_error_list(self, obj, value):
+        temp = list(value)
+        temp = list(set(self.error_list))  # Removes same error multiple times
+        temp = list(filter(None, temp))  # Removes Empty(None) values if any
+        self.error_list = list(temp)
+
+        length = len(temp)
+        if length == 0:
+            error_string = ""
+        elif length < 4:
+            error_string = '\n'.join(self.error_list[:4])
+        else:
+            error_string = '\n'.join(self.error_list[:3]) + "\n ..."
+
+        self.root.ids.display_box.text = error_string
 
     # Convert input_matrix into nested lists
     def make_matrix(self):
@@ -82,26 +96,22 @@ class MatrixCalculator(MDApp):
         children_list = self.root.ids.input_matrix.children
         if not children_list:  # // Checks that calculation not done on empty set of values
             return "---"
-        values_list = []  # // List of all valid values user entered
-        error_list = []
+
+        error_observed = False
+        self.error_list = []
 
         for child in children_list:  # // Checks and Fetches all units of matrix one-by-one
-            error = Validator().chk_value(child.text, self.root.ids.input_matrix.order)
+            error = Validator().chk_value(child.text)
 
-            if error and (error not in error_list):
-                error_list.append(error)
-            elif not error:
-                values_list.append(Fraction(child.text).limit_denominator(999))  # Value converted to fraction
-        else:  # After checking all values for validity
-            if len(error_list) != 0:  # If error present
-                if len(error_list) > 4:
-                    error_list.insert(3, '. . .')  # Add 3 dots if more than 4 errors
-                error_list = error_list[0:4]  # Display max. 4 errors at a time
-                error_string = '\n'.join(error_list)
-                self.root.ids.display_box.text = error_string
-                return "---"
-            else:  # If all values are complete and error free
-                self.root.ids.display_box.text = ''  # Removes error message when all values verified
+            if error:
+                error_observed = True
+                self.error_list.append(error)
+
+        if error_observed:
+            return "---"
+        else:
+            self.error_list = []
+            values_list = [Fraction(child.text).limit_denominator(999) for child in children_list]
 
         # // Covert Linear List to Matrix-type Nested List
         values_list.reverse()
@@ -120,13 +130,15 @@ class MatrixCalculator(MDApp):
     # ////// Receive values of matrix units provided in grid layout
     def calculate(self):
         matrix_list = self.make_matrix()
-        if matrix_list == "---":
+        improper_order = Validator().chk_order(self.root.ids.input_matrix.order, self.operation_mode)
+        if matrix_list == "---" or improper_order:
             return
 
         answer_string = ""
         WHITE_SPACE = "       "
 
         if self.operation_mode == "Determinant":
+
             determinant = Calculator().determinant(matrix_list)
             answer_string += f"Determinant:{WHITE_SPACE}[anchor='right']{determinant}"
 
@@ -156,10 +168,18 @@ class MainWindow(BoxLayout):
     pass
 
 
-# ////// Class dedicated to calculating determinant of matrix
 class Calculator:
 
     def minor_matrix(self, A, order):
+        """Extracts mini matrices from single Big matrix
+
+        Args:
+            A (List): Big matrix
+            order (int): Order of smaller matrices needed
+
+        Returns:
+            List: List of mini matrices
+        """
         minors = []
         for i in range(len(A) - order + 1):
             partial_minor = A[i: i + order]
@@ -215,18 +235,24 @@ class Calculator:
             return 1
 
 
-# *****************************************************************************
-# ////// Class dedicated to verify user inputs
 class Validator:
+    """Class dedicated to verify user inputs
+    """
 
-    def chk_value(self, value, order):
+    def chk_value(self, value):
+        """Checks for standard pattern. If False, then do some pre-tests to find exact problem.
+
+        Args:
+            value (Fraction): Fractional value entered in matrix
+
+        Returns:
+            String: Error statement if error found, otherwise None
+        """
         value = re.sub(r"\s", "", value)  # // Removes all types of whitespaces
         error = None
 
         master_pattern = re.compile(r"^((\+|\-)?\d{1,3}(([\.]\d{1,2})|([\/]\d{1,3}))?){1}$")
 
-        # // Checks for standard pattern
-        # // If false, then do some pre-tests to find exact problem
         if not re.match(master_pattern, value):
             if value == '':
                 error = "! Any part of matrix can't be EMPTY."
@@ -243,17 +269,19 @@ class Validator:
             else:
                 error = "! Improper structure of entered value/s."
 
-        # // Returns "None" for no errors
-        # // Otherwise specified error statement
         return error
 
-    def is_square_matrix(self, A):
-        rows = len(A)
-        for k in A:
-            if len(k) != rows:
-                return False
-        else:
-            return True
+    def chk_order(self, order, operation_mode):
+        error = ""
+
+        if operation_mode in ["Determinant"]:
+            if order[0] != order[1]:
+                error = "! Square matrix required for " + MDApp.get_running_app().operation_mode
+
+        if error:
+            MDApp.get_running_app().error_list = [error]
+
+        return error
 
 
 # /// Driver needed to self start the app ---- VROOM! VROOM!
