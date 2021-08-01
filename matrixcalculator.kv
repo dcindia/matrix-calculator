@@ -3,6 +3,30 @@
 #: import * uixwidgets
 #: import ColorProperty kivy.properties
 
+<MatrixGrid>:
+    size_hint_x: 1
+    size_hint_max_x: dp(700)
+    size_hint_y: None
+    height: self.minimum_height
+    padding: [dp(20+(10*(4-self.order[1])) ), dp(30-(7*(self.order[0]-2)))]
+    spacing: [dp(6.66*3**(4-self.order[1])), dp(6.66*3**(4-self.order[0]))]
+    row_force_default: True
+    row_default_height: dp(50)
+
+    opacity: 0 if self.order == [0, 0] else 1
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex('#d3dde4')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [dp(10), ]
+
+<MatrixGrid1@MatrixGrid>:
+
+<MatrixGrid2@MatrixGrid>:
+
+<MatrixGridA@MatrixGrid>:
 
 <NumberStepper@BoxLayout>:
     value: 0
@@ -23,7 +47,7 @@
         icon: 'minus'
         size_hint_x: 0.3
         on_press: self.parent.value -= 1
-        disabled: True if self.parent.value <= self.parent.min else False
+        disabled: True if self.parent.value <= self.parent.min or self.parent.opacity == 0 else False
     Label:
         canvas.before:
             Color:
@@ -43,7 +67,7 @@
         icon: 'plus'
         size_hint_x: 0.3
         on_press: self.parent.value += 1
-        disabled: True if self.parent.value >= self.parent.max else False
+        disabled: True if self.parent.value >= self.parent.max or self.parent.opacity == 0 else False
 
 
 
@@ -54,38 +78,36 @@
     # // Area : Heading
     AnchorLayout:
         size_hint_y: 0.1071
-        AnchorLayout:
-            anchor_x: 'center'
+        
+        Label:
+            id: heading
+            size_hint_x: 0.9394
+            size_hint_max_x: dp(500)
             size_hint_y: 0.67
-            Label:
-                id: heading
-                size_hint_x: 0.9394
-                size_hint_max_x: dp(500)
-                canvas.before:
-                    Color:
-                        rgb: utils.get_color_from_hex('#0C335C')
-                    RoundedRectangle:
-                        size: self.size
-                        pos: self.pos
-                        radius: [(dp(27),dp(27)),]
+            canvas.before:
+                Color:
+                    rgb: utils.get_color_from_hex('#0C335C')
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [(dp(27),dp(27)),]
 
-                text: "Matrix  Calculator      "
-                font_family: 'bold'
-                font_name: './assets/fonts/Alata-Regular.ttf'
-                font_size: sp(23)
+            text: "Matrix  Calculator      "
+            font_family: 'bold'
+            font_name: './assets/fonts/Alata-Regular.ttf'
+            font_size: sp(23)
 
-                halign: 'right'
-                valign: 'center'
-                text_size: self.size
-                Image:
-                    pos: (self.parent.x-self.parent.width/3,self.parent.y)
-                    size: self.parent.size
-                    source: './assets/images/icon.png'
+            halign: 'right'
+            valign: 'center'
+            text_size: self.size
+            Image:
+                pos: (self.parent.x-self.parent.width/3,self.parent.y)
+                size: self.parent.size
+                source: './assets/images/icon.png'
 
     # // Area : Input
     AnchorLayout:
         size_hint_y: 0.1442
-        # padding: (self.width*0.0606,0)
 
         BoxLayout:
             orientation: "vertical"
@@ -111,14 +133,17 @@
                 text: "Choose order of Matrix :"
                 color: utils.get_color_from_hex('#4E5356')
             
+            # // Number stepper to adjust matrix order
             BoxLayout:
                 size_hint_y: 0.6
                 padding: dp(10)
                 spacing: dp(10)
-                NumberStepper:
+                NumberStepper: # // Adjust Rows
                     id: input_order_m
                     size_hint_x: 0.45
-                    value: 3
+                    value: root.ids.matrix_screen.current_screen.children[0].order[0]
+                    on_value: root.ids.matrix_screen.current_screen.children[0].order[0] = self.value
+                    opacity: 0 if root.ids.matrix_screen.current == "Ans" else 1
                     min: 1
                     max: 4
                 Label:
@@ -127,12 +152,17 @@
                     font_size: sp(20)
                     font_name: 'DejaVuSans.ttf'
                     size_hint_x: 0.1
-                NumberStepper:
+                NumberStepper: # // Adjust columns
                     id: input_order_n
                     size_hint_x: 0.45
+                    value: root.ids.matrix_screen.current_screen.children[0].order[1]
+                    on_value: root.ids.matrix_screen.current_screen.children[0].order[1] = self.value
+                    opacity: 0 if root.ids.matrix_screen.current == "Ans" else 1
                     value: 3
                     min: 1
                     max: 4
+
+    # // Operation Control Area
     AnchorLayout:
         size_hint_y: 0.15
         
@@ -147,6 +177,8 @@
                     size: self.size
                     pos: self.pos
                     radius: [dp(10),]
+            
+            # // Sub-panel for controlling current operations
             StackLayout:
                 padding: dp(10), dp(7)
                 spacing: dp(15)
@@ -164,9 +196,31 @@
                     text: app.operation_mode + " of"
                     font_name: "Roboto-Bold.ttf"
                 ToggleMatrix:
+                    id: M1_button
                     text: "M1"
                     state: 'down'
+                    # this button can be selected both programatically and manually
+                    on_state: root.ids.matrix_screen.transition.direction = 'right'
+                    on_state: root.ids.matrix_screen.current = self.text if self.state == 'down' else root.ids.matrix_screen.current
+                    
+                BoxLayout: # // Section visible only if double matrix operation
+                    size_hint_x: None
+                    opacity: 1 if app.operation_config[app.operation_mode][0] == 'double' else 0
+                    spacing: dp(10)
+                    Label:
+                        size_hint_x: None
+                        size: self.texture_size
+                        text: "and"
+                        font_name: "Roboto-Bold.ttf"
+                    ToggleMatrix:
+                        text: "M2"
+                        disabled: True if self.parent.opacity == 0 else False
+                        on_disabled: root.ids.M1_button.state = 'down' if self.state == 'down' else root.ids.M1_button.state; self.state = 'normal'
+                        # this button can be selected only manually
+                        on_release: root.ids.matrix_screen.transition.direction = 'left'
+                        on_release: root.ids.matrix_screen.current = self.text if self.state == 'down' else root.ids.matrix_screen.current
 
+            # // Choose between operations
             StackLayout:
                 size_hint_y: 0.4
                 padding: dp(10)
@@ -178,24 +232,20 @@
                     state: 'down'
                 ToggleOperation:
                     text: "Rank"
-                
+                ToggleOperation:
+                    text: "Addition"
 
 
 
     # // Area : Display
     AnchorLayout:
-        anchor_x: 'center'
         size_hint_y: 0.1214
-        #:set indicator_red utils.get_color_from_hex('#FF615C')
-        #:set indicator_green utils.get_color_from_hex('#93EF6B')
 
-        BoxLayout:
-            border_radius: "10dp"
-            md_bg_color: 
+        StackLayout:
+            padding: dp(10), dp(5)
             size_hint: (0.8788,None)
-            height: root.ids.display_box.height
+            height: root.ids.display_box.height + 2*self.padding[1]
             opacity: 1 if root.ids.display_box.text else 0
-            elevation: 0
             indicator_color: [0,0,0,0]
             canvas.before:
                 Color:
@@ -207,34 +257,51 @@
 
             Widget: # Indicator of error or answer
                 size_hint: None, None
+                pos: self.parent.pos
                 size: [dp(10), self.parent.height]
                 canvas:
                     Color:
                         rgba: self.parent.indicator_color
                     RoundedRectangle:
                         size: self.size
-                        pos: self.pos
+                        pos: self.parent.pos
                         radius: [dp(8), 0, 0, dp(8)]
             
             Label:
                 id: display_box
-                height: self.texture_size[1] + dp(20)
-                padding: (10,0)
+                size_hint: None, None
+                size: self.texture_size
+                #padding: dp(10), dp(10)
+                #halign: 'left'
+                #valign: 'center'
+                #height: self.texture_size[1] + dp(20)
                 markup: True
                 max_lines: 4
                 text: ''
                 font_name: 'Roboto-Bold.ttf'
                 font_size: sp(15)
-                text_size: self.width,None
-                valign: 'center'
+                #text_size: self.width,None
 
                 #:set tiranga_red utils.get_color_from_hex('#EB730A')
                 #:set dark_green utils.get_color_from_hex('#3C9532')
                 #:set dark_red utils.get_color_from_hex('#973126')
+                #:set indicator_red utils.get_color_from_hex('#FF615C')
+                #:set indicator_green utils.get_color_from_hex('#93EF6B')
 
                 color: dark_red if (root.ids.display_box.text).startswith('!') else dark_green
                 on_text: self.parent.indicator_color = indicator_red if (self.text).startswith('!') else indicator_green
 
+            ToggleMatrix:
+                id: ans_button
+                text: "Ans"
+                #disabled: True if app.operation_config[app.operation_mode][2] != "matrix" else False
+                disabled: True if app.operation_config[app.operation_mode][2] != "matrix" or self.parent.indicator_color == indicator_red else False
+                on_state: root.ids.matrix_screen.current = self.text if self.state == 'down' else root.ids.matrix_screen.current
+                on_state: root.ids.matrix_screen.transition.direction = 'up' if self.state == 'down' else 'down'
+                opacity: 0 if self.disabled == True else 1
+
+                
+            
 
     # // Area : Matrix
     AnchorLayout:
@@ -242,28 +309,24 @@
         size_hint_y: 0.3771
         padding: (self.width*0.0606,0)
 
-        MatrixGrid:
-            id: input_matrix
-            order: [root.ids.input_order_m.value, root.ids.input_order_n.value]
-            size_hint_x: 1
-            size_hint_max_x: dp(700)
-            size_hint_y: None
-            height: self.minimum_height
-            padding: [dp(20+(10*(4-self.order[1])) ), dp(30-(7*(self.order[0]-2)))]
-            spacing: [dp(6.66*3**(4-self.order[1])), dp(6.66*3**(4-self.order[0]))]
-            row_force_default: True
-            row_default_height: dp(50)
+        ScreenManager:
+            id: matrix_screen
+            on_current: root.ids.input_order_m.value = self.current_screen.children[0].order[0]; root.ids.input_order_n.value = self.current_screen.children[0].order[1]
+            Screen:
+                name: 'M1'
+                MatrixGrid1:
+                    id: input_matrix_1
+            Screen:
+                name: 'M2'
+                MatrixGrid2:
+                    id: input_matrix_2
 
-            opacity: 0 if self.order == [0, 0] else 1
-            canvas.before:
-                Color:
-                    rgba: utils.get_color_from_hex('#d3dde4')
-                RoundedRectangle:
-                    size: self.size
-                    pos: self.pos
-                    radius: [dp(10), ]
-
-    # // Area : Control
+            Screen:
+                name: 'Ans'
+                MatrixGridA:
+                    id: output_matrix
+                    
+    # // Area : Launchpad
     BoxLayout:
         orientation: 'horizontal'
         size_hint_y: 0.1000
@@ -271,7 +334,7 @@
 
         # // Button to clear matrix_input
         Button:
-            on_press: root.ids.input_matrix.on_order()
+            on_release: root.ids.input_matrix.on_order()
 
             size_hint_x: 0.3
             size_hint_y: 3/5
@@ -299,7 +362,7 @@
 
         # ////// Button to initiate the calculation of provided matrix
         Button:
-            on_press: app.calculate()
+            on_release: app.calculate()
             text: '   Calculate  >>'
             font_name: './assets/fonts/ChakraPetch-SemiBoldItalic.ttf'
             font_size: sp(25)

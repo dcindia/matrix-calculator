@@ -1,4 +1,5 @@
 # All the import statements needed in current version or upcoming version
+import itertools
 import kivy
 from kivy.properties import ListProperty, OptionProperty
 import os
@@ -41,37 +42,54 @@ def white_status_bar():
 
 # Development of grid layout that contains all the units of matrix
 class MatrixGrid(GridLayout, BoxLayout):
-    order = ListProperty([0, 0])
+    order = ListProperty([3, 3])
 
     # Function to make Matrix view as per the provided order
     def on_order(self, *args):
 
-        try:
-            MDApp.get_running_app().error_list = []
-        except Exception:
-            print("display_box still not created.")
+        app.error_list = []
+
         self.clear_widgets()
         self.rows = int(self.order[0])
         self.cols = int(self.order[1])
 
         for i in range(1, self.order[0] + 1):
             for k in range(1, self.order[1] + 1):
-                set_id = 'a' + str(i) + str(k)
                 text_input = MatrixValue()
-                text_input.id = set_id
                 self.add_widget(text_input)
+
+    def show_matrix(self, matrix):
+        self.order = [len(matrix), len(matrix[0])]
+        unpacked_matrix = list(itertools.chain(*matrix))
+        print(unpacked_matrix)
+        unpacked_matrix.reverse()
+
+        for k in range(0, len(unpacked_matrix)):
+            self.children[k].readonly = True
+            self.children[k].text = str(unpacked_matrix[k])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.on_order()
 
 
 # // Our main App
 # // All the initiations, exchanges and processes done here
 class MatrixCalculator(MDApp):
-    operation_mode = OptionProperty('Determinant', options=['Determinant', 'Rank'])
+
+    # Config_format === Operation_Type: (Input_type, Order_type, Output_type)
+    operation_config = {'Determinant': ('single', 'square', 'number'),
+                        'Rank': ('single', 'any', 'number'),
+                        'Addition': ('double', 'same', 'matrix')}
+    operation_mode = OptionProperty('Determinant', options=operation_config.keys())
     error_list = ListProperty([])
     operation_type = OptionProperty('single', options=['single', 'double'])
 
     def __init__(self, **kwargs):
         self.title = "Matrix Calculator"
         self.theme_cls.theme_style = "Light"
+        global app
+        app = self
         super().__init__(**kwargs)
 
     def on_error_list(self, obj, value):
@@ -91,9 +109,10 @@ class MatrixCalculator(MDApp):
         self.root.ids.display_box.text = error_string
 
     # Convert input_matrix into nested lists
-    def make_matrix(self):
+    def make_matrix(self, matrix):
+
         # // Receives all text boxes of Matrix Grid
-        children_list = self.root.ids.input_matrix.children
+        children_list = matrix.children
         if not children_list:  # // Checks that calculation not done on empty set of values
             return "---"
 
@@ -117,7 +136,7 @@ class MatrixCalculator(MDApp):
         values_list.reverse()
         Mvalues_list = []
         temp_list = []
-        order = self.root.ids.input_matrix.order
+        order = matrix.order
 
         for i in range(order[0]):
             for k in range(order[1]):
@@ -129,28 +148,42 @@ class MatrixCalculator(MDApp):
 
     # ////// Receive values of matrix units provided in grid layout
     def calculate(self):
-        matrix_list = self.make_matrix()
-        improper_order = Validator().chk_order(self.root.ids.input_matrix.order, self.operation_mode)
-        if matrix_list == "---" or improper_order:
+
+        order_type = self.operation_config[self.operation_mode][1]
+        improper_order = Validator().chk_order([self.root.ids.input_matrix_1.order, self.root.ids.input_matrix_2.order], order_type)
+        if improper_order:
+            return
+
+        matrices_list = [self.make_matrix(self.root.ids.input_matrix_1)]
+        if self.operation_config[self.operation_mode][0] == 'double':
+            matrices_list.append(self.make_matrix(self.root.ids.input_matrix_2))
+
+        if "---" in matrices_list:
             return
 
         answer_string = ""
-        WHITE_SPACE = "       "
+        WHITE_SPACE = "     "
 
         if self.operation_mode == "Determinant":
 
-            determinant = Calculator().determinant(matrix_list)
+            determinant = Calculator().determinant(matrices_list[0])
             answer_string += f"Determinant:{WHITE_SPACE}[anchor='right']{determinant}"
 
         elif self.operation_mode == "Rank":
-            rank = Calculator().rank_of_matrix(matrix_list)
+            rank = Calculator().rank_of_matrix(matrices_list[0])
             answer_string += f"Rank:{WHITE_SPACE}{rank}"
+
+        elif self.operation_mode == "Addition":
+            sum = Calculator().add(matrices_list[0], matrices_list[1])
+            answer_string += f"Sum:{WHITE_SPACE}"
+            self.root.ids.output_matrix.show_matrix(sum)
+            self.root.ids.ans_button.trigger_action()
 
         else:
             answer_string += "Choose operation & re-calculate"
 
         # // Sets the answer to display_box
-        self.root.ids.display_box.text = f"[size=25sp]{answer_string}[/size]"
+        self.root.ids.display_box.text = f"[size=29sp]{answer_string}[/size]"
 
     # //// Sets the root of our window
     def build(self):
@@ -234,6 +267,15 @@ class Calculator:
         else:
             return 1
 
+    def add(self, A, B):
+        summed_matrix = [list(zip(m, n)) for m, n in zip(A, B)]
+        for j in range(0, len(summed_matrix)):
+            for k in range(0, len(summed_matrix[j])):
+                pair = summed_matrix[j][k]
+                summed_matrix[j][k] = pair[0] + pair[1]
+        print(summed_matrix)
+        return summed_matrix
+
 
 class Validator:
     """Class dedicated to verify user inputs
@@ -271,15 +313,18 @@ class Validator:
 
         return error
 
-    def chk_order(self, order, operation_mode):
+    def chk_order(self, orders, order_type):
         error = ""
 
-        if operation_mode in ["Determinant"]:
-            if order[0] != order[1]:
-                error = "! Square matrix required for " + MDApp.get_running_app().operation_mode
+        if order_type == 'square':
+            if orders[0][0] != orders[0][1]:
+                error = "! Square matrix required for " + app.operation_mode
+        elif order_type == 'same':
+            if orders[0] != orders[1]:
+                error = "! Order of both matrices should be same."
 
         if error:
-            MDApp.get_running_app().error_list = [error]
+            app.error_list = [error]
 
         return error
 
