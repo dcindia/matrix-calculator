@@ -61,7 +61,6 @@ class MatrixGrid(GridLayout, BoxLayout):
     def show_matrix(self, matrix):
         self.order = [len(matrix), len(matrix[0])]
         unpacked_matrix = list(itertools.chain(*matrix))
-        print(unpacked_matrix)
         unpacked_matrix.reverse()
 
         for k in range(0, len(unpacked_matrix)):
@@ -81,7 +80,8 @@ class MatrixCalculator(MDApp):
     operation_config = {'Determinant': ('single', 'square', 'number'),
                         'Rank': ('single', 'any', 'number'),
                         'Addition': ('double', 'same', 'matrix'),
-                        'Product': ('double', 'chain', 'matrix')}
+                        'Product': ('double', 'chain', 'matrix'),
+                        'Inverse': ('single', 'square', 'matrix')}
     operation_mode = OptionProperty('Determinant', options=operation_config.keys())
     error_list = ListProperty([])
     operation_type = OptionProperty('single', options=['single', 'double'])
@@ -186,6 +186,16 @@ class MatrixCalculator(MDApp):
             self.root.ids.output_matrix.show_matrix(product)
             self.root.ids.ans_button.trigger_action()
 
+        elif self.operation_mode == "Inverse":
+            determinant = Calculator().determinant(matrices_list[0])
+            if determinant == 0:
+                answer_string += "[size=19sp]Inverse not possible for matrix\nwhose determinant is 0.[/size]"
+            else:
+                inverse = Calculator().inverse(matrices_list[0])
+                answer_string += f"Inverse:{WHITE_SPACE}"
+                self.root.ids.output_matrix.show_matrix(inverse)
+                self.root.ids.ans_button.trigger_action()
+
         else:
             answer_string += "Choose operation & re-calculate"
 
@@ -210,7 +220,7 @@ class MainWindow(BoxLayout):
 
 class Calculator:
 
-    def minor_matrix(self, A, order):
+    def sub_matrix(self, A, order):
         """Extracts mini matrices from single Big matrix
 
         Args:
@@ -227,6 +237,10 @@ class Calculator:
                 minor = [B[k: k + order] for B in partial_minor]
                 minors.append(minor)
         return minors
+
+    def transpose(self, A):
+        transposed_matrix = [[k[t] for k in A] for t in range(len(A[0]))]
+        return transposed_matrix
 
     def determinant(self, A, total=0):
         # Section 1: store indices in list for row referencing
@@ -259,12 +273,31 @@ class Calculator:
 
         return total
 
+    def inverse(self, A):
+        A_copy = list(A)
+        det_A = self.determinant(A)
+        inversed_matrix = []
+        for i in range(len(A)):
+            A_copy.pop(i)
+            inversed_matrix.append([])
+            for j in range(len(A[1])):
+                minor_matrix = [k[:j] + k[j + 1:] for k in A_copy]
+                cofactor = ((-1) ** (i + j)) * self.determinant(minor_matrix) / det_A
+                inversed_matrix[i].append(cofactor)
+                print(f"Cofactor = {cofactor} for {minor_matrix}")
+            else:
+                A_copy = list(A)
+        else:
+            inversed_matrix = self.transpose(inversed_matrix)
+
+        return inversed_matrix
+
     def rank_of_matrix(self, A):
         max_rank = min(len(A), len(A[1]))
         print("**** Rank detection started ****")
         for k in reversed(range(1, max_rank + 1)):
             print("on order:", k)
-            for f in self.minor_matrix(A, k):
+            for f in self.sub_matrix(A, k):
                 print("Checking for", f)
                 det = self.determinant(f)
                 print("Got Determinant:", det)
@@ -311,6 +344,13 @@ class Calculator:
     B = [[3, 4, 5, 9], [1, -4, 5, 2], [-2, 8, 4, 4]]
     A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     product(A, B)
+"""
+"""
+    A = [[Fraction(1), Fraction(2), Fraction(3), Fraction(-2)],
+        [Fraction(4), Fraction(1, 3), Fraction(5), Fraction(6)],
+        [Fraction(7), Fraction(9), Fraction(-3, 7), Fraction(8)],
+        [Fraction(7), Fraction(3), Fraction(-1), Fraction(8, 3)]]
+    inverse(A)
 """
 
 
