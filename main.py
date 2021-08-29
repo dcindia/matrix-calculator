@@ -93,6 +93,9 @@ class MatrixCalculator(MDApp):
         app = self
         super().__init__(**kwargs)
 
+    def on_operation_mode(self, *args):
+        self.root.ids.display_box.text = ""
+
     def on_error_list(self, obj, value):
         temp = list(value)
         temp = list(set(self.error_list))  # Removes same error multiple times
@@ -189,6 +192,7 @@ class MatrixCalculator(MDApp):
         elif self.operation_mode == "Inverse":
             determinant = Calculator().determinant(matrices_list[0])
             if determinant == 0:
+                self.root.ids.display_box.text = ""
                 answer_string += "[size=19sp]Inverse not possible for matrix\nwhose determinant is 0.[/size]"
             else:
                 inverse = Calculator().inverse(matrices_list[0])

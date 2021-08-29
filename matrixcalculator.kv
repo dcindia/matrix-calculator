@@ -299,7 +299,7 @@
                 id: ans_button
                 text: "Ans"
                 #disabled: True if app.operation_config[app.operation_mode][2] != "matrix" else False
-                disabled: True if app.operation_config[app.operation_mode][2] != "matrix" or self.parent.indicator_color == indicator_red else False
+                disabled: True if app.operation_config[app.operation_mode][2] != "matrix" or self.parent.indicator_color == indicator_red  or ":" not in root.ids.display_box.text else False
                 on_state: root.ids.matrix_screen.current = self.text if self.state == 'down' else root.ids.matrix_screen.current
                 on_state: root.ids.matrix_screen.transition.direction = 'up' if self.state == 'down' else 'down'
                 opacity: 0 if self.disabled == True else 1
