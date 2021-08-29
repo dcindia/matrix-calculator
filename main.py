@@ -80,7 +80,8 @@ class MatrixCalculator(MDApp):
     # Config_format === Operation_Type: (Input_type, Order_type, Output_type)
     operation_config = {'Determinant': ('single', 'square', 'number'),
                         'Rank': ('single', 'any', 'number'),
-                        'Addition': ('double', 'same', 'matrix')}
+                        'Addition': ('double', 'same', 'matrix'),
+                        'Product': ('double', 'chain', 'matrix')}
     operation_mode = OptionProperty('Determinant', options=operation_config.keys())
     error_list = ListProperty([])
     operation_type = OptionProperty('single', options=['single', 'double'])
@@ -177,6 +178,12 @@ class MatrixCalculator(MDApp):
             sum = Calculator().add(matrices_list[0], matrices_list[1])
             answer_string += f"Sum:{WHITE_SPACE}"
             self.root.ids.output_matrix.show_matrix(sum)
+            self.root.ids.ans_button.trigger_action()
+
+        elif self.operation_mode == "Product":
+            product = Calculator().product(matrices_list[0], matrices_list[1])
+            answer_string += f"Product:{WHITE_SPACE}"
+            self.root.ids.output_matrix.show_matrix(product)
             self.root.ids.ans_button.trigger_action()
 
         else:
@@ -276,6 +283,36 @@ class Calculator:
         print(summed_matrix)
         return summed_matrix
 
+    def product(self, A, B):
+        group_by_column = [[k[t] for k in B] for t in range(len(B[0]))]
+        print("Grouped by column =", group_by_column)
+        product_matrix = []
+
+        for j in A:
+            row_matrix = []
+            print("=============")
+
+            for k in group_by_column:
+                print("=============")
+                print(j, '*', k)
+                term = [m * n for m, n in zip(j, k)]
+                row_matrix.append(sum(term))
+                print("Answer =", sum(term))
+
+            else:
+                product_matrix.append(row_matrix)
+
+        print("******************************")
+        print("Final Product Matrix =", product_matrix)
+        return product_matrix
+
+
+"""
+    B = [[3, 4, 5, 9], [1, -4, 5, 2], [-2, 8, 4, 4]]
+    A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    product(A, B)
+"""
+
 
 class Validator:
     """Class dedicated to verify user inputs
@@ -322,6 +359,9 @@ class Validator:
         elif order_type == 'same':
             if orders[0] != orders[1]:
                 error = "! Order of both matrices should be same."
+        elif order_type == 'chain':
+            if orders[0][1] != orders[1][0]:
+                error = "! Columns of M1 should equals to rows of M2"
 
         if error:
             app.error_list = [error]

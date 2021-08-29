@@ -164,7 +164,7 @@
 
     # // Operation Control Area
     AnchorLayout:
-        size_hint_y: 0.15
+        size_hint_y: 0.19
         
         BoxLayout:
             orientation: "vertical"
@@ -182,7 +182,7 @@
             StackLayout:
                 padding: dp(10), dp(7)
                 spacing: dp(15)
-                size_hint_y: 0.6
+                size_hint_y: 0.4
                 canvas:
                     Color:
                         rgba: utils.get_color_from_hex('#85ADD7')
@@ -222,9 +222,9 @@
 
             # // Choose between operations
             StackLayout:
-                size_hint_y: 0.4
+                size_hint_y: 0.6
                 padding: dp(10)
-                spacing: dp(10)
+                spacing: [dp(10), dp(5)]
                 size_hint_x: 0.8788
                 
                 ToggleOperation:
@@ -234,12 +234,14 @@
                     text: "Rank"
                 ToggleOperation:
                     text: "Addition"
+                ToggleOperation:
+                    text: "Product"
 
 
 
     # // Area : Display
     AnchorLayout:
-        size_hint_y: 0.1214
+        size_hint_y: 0.0814
 
         StackLayout:
             padding: dp(10), dp(5)
