@@ -338,7 +338,8 @@
 
         # // Button to clear matrix_input
         Button:
-            on_release: root.ids.input_matrix.on_order()
+            disabled: True if root.ids.matrix_screen.current == "Ans" else False
+            on_release: root.ids.matrix_screen.current_screen.children[0].on_order()
 
             size_hint_x: 0.3
             size_hint_y: 3/5
