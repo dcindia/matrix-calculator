@@ -9,7 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from uixwidgets import MatrixValue
 from kivy.utils import platform
-from kivymd.app import MDApp
+from kivy.app import App
 from kivy.config import Config
 from kivy.core.window import Window
 import re
@@ -74,7 +74,7 @@ class MatrixGrid(GridLayout, BoxLayout):
 
 # // Our main App
 # // All the initiations, exchanges and processes done here
-class MatrixCalculator(MDApp):
+class MatrixCalculator(App):
 
     # Config_format === Operation_Type: (Input_type, Order_type, Output_type)
     operation_config = {'Determinant': ('single', 'square', 'number'),
@@ -88,7 +88,6 @@ class MatrixCalculator(MDApp):
 
     def __init__(self, **kwargs):
         self.title = "Matrix Calculator"
-        self.theme_cls.theme_style = "Light"
         global app
         app = self
         super().__init__(**kwargs)
@@ -208,6 +207,7 @@ class MatrixCalculator(MDApp):
 
     # //// Sets the root of our window
     def build(self):
+        Window.clearcolor = (1, 1, 1, 1)
         if platform == "android":
             Window.softinput_mode = 'below_target'  # // Added to fix text-box hidden behind keyboard
             white_status_bar()

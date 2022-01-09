@@ -17,6 +17,8 @@ jobs:
       
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
+        with:
+          python-version: '3.8'
       
       - name: Installing pyinstaller
         run: pip3 install pyinstaller==4.2
@@ -46,6 +48,8 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
+        with:
+          python-version: '3.8'
 
       - name: Installing Dependencies
         run:  sudo add-apt-repository ppa:kivy-team/kivy;

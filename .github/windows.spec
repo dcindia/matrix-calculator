@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 from kivy_deps import sdl2, glew, angle
-from kivymd import hooks_path as kivymd_hooks_path
+#from kivymd import hooks_path as kivymd_hooks_path
 block_cipher = None
 
 
@@ -9,7 +9,7 @@ a = Analysis(['./../main.py'],
              binaries=[],
              datas=[('./../matrixcalculator.kv','.'),('.\\..\\assets\\','assets')],
              hiddenimports=[],
-             hookspath=[kivymd_hooks_path],
+             #hookspath=[kivymd_hooks_path],
              runtime_hooks=[],
              excludes=['numpy', 'docutils', 'pygments', 'PIL'],
              win_no_prefer_redirects=False,

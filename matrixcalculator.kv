@@ -28,6 +28,13 @@
 
 <MatrixGridA@MatrixGrid>:
 
+<StepperButton@Button>:
+    font_size: sp(25)
+    color: 0,0,0,1
+    background_normal: ''
+    background_disabled_color: 0,0,0,0
+    background_color: 0,0,0,0
+
 <NumberStepper@BoxLayout>:
     value: 0
     min: 0
@@ -43,8 +50,9 @@
             size: self.size
             pos:self.pos
             radius: [dp(5),]
-    MDIconButton:
-        icon: 'minus'
+    StepperButton:
+        text: '−'
+        bold: True
         size_hint_x: 0.3
         on_press: self.parent.value -= 1
         disabled: True if self.parent.value <= self.parent.min or self.parent.opacity == 0 else False
@@ -63,8 +71,8 @@
         halign: 'center'
         valign: 'center'
         height: dp(50)
-    MDIconButton:
-        icon: 'plus'
+    StepperButton:
+        text: '+'
         size_hint_x: 0.3
         on_press: self.parent.value += 1
         disabled: True if self.parent.value >= self.parent.max or self.parent.opacity == 0 else False
@@ -359,11 +367,10 @@
                 Quad:
                     points: (self.parent.width*4.5/15,self.height+self.y,self.parent.width*5.5/15,self.y,self.x,self.y,self.x,self.height+self.y)
 
-            MDIcon:
-                icon: 'refresh'
-                size: self.parent.size
-                pos: (self.parent.x+self.parent.padding_x,self.parent.y)
-                color: 1,1,1,1
+            Image:
+                source: 'assets/images/refresh.png'
+                size: self.parent.height/2, self.parent.height/2
+                pos: (self.parent.x+self.parent.padding_x, self.parent.center_y-self.height/2)
 
         # ////// Button to initiate the calculation of provided matrix
         Button:
